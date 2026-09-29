@@ -441,6 +441,74 @@ const burst = (s, color) => sticker(s, s, g => {
   for (let i = 0; i <= N * 2; i++) { const a = i / (N * 2) * Math.PI * 2, rr = (i % 2 ? .36 : .45) * s; const x = cx + Math.cos(a) * rr, y = cy + Math.sin(a) * rr; i ? g.lineTo(x, y) : g.moveTo(x, y); }
   g.fill();
 }, `burst${s}${color}`);
+// persimmon tree cut-out (Cheongdo is known for its seedless "bansi" persimmons)
+const persimmonTree = (w, h) => sticker(w, h, g => {
+  const r = rng(81), cx = w * .5;
+  g.strokeStyle = "#6b4426"; g.lineCap = "round";
+  g.lineWidth = w * .09; g.beginPath(); g.moveTo(cx, h * .98); g.bezierCurveTo(cx - 10, h * .7, cx + 16, h * .55, cx, h * .42); g.stroke();
+  g.lineWidth = w * .035; [[-.32, .4], [.3, .36], [-.2, .28], [.22, .5], [-.35, .55]].forEach(([dx, y]) => { g.beginPath(); g.moveTo(cx, h * (y + .12)); g.quadraticCurveTo(cx + dx * w * .5, h * (y + .05), cx + dx * w, h * y); g.stroke(); });
+  const blobs = [];
+  for (let i = 0; i < 26; i++) { const a = r() * Math.PI * 2, d = Math.sqrt(r()); blobs.push([cx + Math.cos(a) * d * w * .42, h * .32 + Math.sin(a) * d * h * .2, w * (.1 + r() * .07)]); }
+  blobs.forEach(([x, y, s], i) => { g.fillStyle = ["#2f6b3b", "#3d8b48", "#4f9a4c", "#7aa83f"][i % 4]; g.beginPath(); g.arc(x, y, s, 0, 7); g.fill(); });
+  for (let i = 0; i < 30; i++) {
+    const a = r() * Math.PI * 2, d = Math.sqrt(r()), x = cx + Math.cos(a) * d * w * .44, y = h * .33 + Math.sin(a) * d * h * .21, s = w * (.03 + r() * .015);
+    const G = g.createRadialGradient(x - s * .3, y - s * .3, 1, x, y, s); G.addColorStop(0, "#ffb050"); G.addColorStop(1, "#e2601a");
+    g.fillStyle = G; g.beginPath(); g.arc(x, y, s, 0, 7); g.fill();
+  }
+}, `ptree${w}x${h}`);
+// cosmos flower, Korea's autumn roadside flower
+const cosmos = (s, petal = "#f48fb8", seed = 1) => sticker(s, s, g => {
+  const cx = s / 2, cy = s / 2, R = s * .4, r = rng(seed);
+  for (let i = 0; i < 8; i++) {
+    g.save(); g.translate(cx, cy); g.rotate(i * Math.PI / 4 + r() * .1);
+    g.fillStyle = petal; g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(R * .45, -R * .32, R, -R * .18); g.lineTo(R * .9, 0); g.lineTo(R, R * .18); g.quadraticCurveTo(R * .45, R * .32, 0, 0); g.fill();
+    g.strokeStyle = "rgba(160,40,90,.25)"; g.lineWidth = 2; g.beginPath(); g.moveTo(R * .15, 0); g.lineTo(R * .8, 0); g.stroke();
+    g.restore();
+  }
+  g.fillStyle = "#f5b82e"; g.beginPath(); g.arc(cx, cy, R * .22, 0, 7); g.fill();
+  g.fillStyle = "#d98a12"; for (let i = 0; i < 14; i++) { const a = r() * 7, d = r() * R * .16; g.beginPath(); g.arc(cx + Math.cos(a) * d, cy + Math.sin(a) * d, 2.5, 0, 7); g.fill(); }
+}, `cosmos${s}${petal}${seed}`);
+// wooden board standing in for the reference's surfboard
+const board = (w, h) => sticker(w, h, g => {
+  const cx = w / 2;
+  const path = () => { g.beginPath(); g.moveTo(cx, 8); g.bezierCurveTo(w - 4, h * .12, w - 4, h * .8, cx, h - 8); g.bezierCurveTo(4, h * .8, 4, h * .12, cx, 8); g.closePath(); };
+  const G = g.createLinearGradient(0, 0, w, 0); G.addColorStop(0, "#f3e3c3"); G.addColorStop(.5, "#fbf1dc"); G.addColorStop(1, "#ead4ab"); g.fillStyle = G; path(); g.fill();
+  g.save(); path(); g.clip();
+  g.fillStyle = "#16808c"; g.fillRect(cx - 5, 0, 10, h); g.fillStyle = "#ec6a1f"; g.fillRect(cx - 14, 0, 4, h); g.fillRect(cx + 10, 0, 4, h);
+  g.globalAlpha = .9; g.fillStyle = "#fbf1dc"; g.beginPath(); g.ellipse(cx, h * .5, w * .36, h * .36, 0, 0, 7); g.fill();
+  g.restore();
+  g.strokeStyle = "#b99562"; g.lineWidth = 4; path(); g.stroke();
+}, `board${w}x${h}`);
+// autumn road through the mountains (decorative backdrop for the bus)
+function roadScene(w, h) {
+  return asset(`road${w}x${h}`, () => {
+    const [c, g] = cv(w, h), r = rng(91);
+    const ridge = (base, amp, col, s) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, h); for (let x = 0; x <= w; x += 10) g.lineTo(x, base - amp * (Math.sin(x / 90 + s) * .5 + Math.sin(x / 37 + s * 3) * .2 + .3)); g.lineTo(w, h); g.fill(); };
+    ridge(h * .3, 90, "#8fb6c9", 1); ridge(h * .4, 80, "#6f9a78", 2); ridge(h * .5, 60, "#c9793a", 3.3); ridge(h * .58, 40, "#3d7a45", 5);
+    for (let i = 0; i < 40; i++) { g.fillStyle = ["#e0662a", "#f2a33a", "#b8412a", "#4f8a45"][i % 4]; g.beginPath(); g.arc(r() * w, h * .55 + r() * h * .12, 10 + r() * 14, 0, 7); g.fill(); }
+    g.fillStyle = "#3a3f44"; g.beginPath(); g.moveTo(w * .47, h * .6); g.lineTo(w * .53, h * .6); g.bezierCurveTo(w * .6, h * .75, w * .9, h * .85, w * .95, h); g.lineTo(w * .05, h); g.bezierCurveTo(w * .15, h * .85, w * .42, h * .75, w * .47, h * .6); g.fill();
+    g.strokeStyle = "#f2d34a"; g.lineWidth = 6; g.setLineDash([26, 22]); g.beginPath(); g.moveTo(w * .5, h * .61); g.bezierCurveTo(w * .54, h * .74, w * .5, h * .86, w * .5, h); g.stroke(); g.setLineDash([]);
+    g.strokeStyle = "#e9e4d6"; g.lineWidth = 5; g.beginPath(); g.moveTo(w * .53, h * .6); g.bezierCurveTo(w * .6, h * .75, w * .9, h * .85, w * .95, h); g.stroke();
+    g.beginPath(); g.moveTo(w * .47, h * .6); g.bezierCurveTo(w * .42, h * .75, w * .15, h * .85, w * .05, h); g.stroke();
+    g.globalCompositeOperation = "destination-in";
+    const L = g.createLinearGradient(0, 0, w, 0); L.addColorStop(0, "rgba(0,0,0,0)"); L.addColorStop(.22, "#000"); L.addColorStop(.8, "#000"); L.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = L; g.fillRect(0, 0, w, h);
+    return png(c);
+  });
+}
+// simple line icons for the feature strip
+function icon(kind, s = 64) {
+  return asset(`icon${kind}${s}`, () => {
+    const [c, g] = cv(s, s); g.strokeStyle = g.fillStyle = "#0e5f6b"; g.lineWidth = s * .075; g.lineCap = g.lineJoin = "round";
+    const k = s / 64;
+    if (kind === "bull") { g.beginPath(); g.ellipse(32 * k, 38 * k, 14 * k, 16 * k, 0, 0, 7); g.fill(); g.beginPath(); g.moveTo(20 * k, 28 * k); g.quadraticCurveTo(6 * k, 24 * k, 8 * k, 12 * k); g.moveTo(44 * k, 28 * k); g.quadraticCurveTo(58 * k, 24 * k, 56 * k, 12 * k); g.stroke(); g.fillStyle = "#fbf5e6"; g.beginPath(); g.arc(26 * k, 36 * k, 2.6 * k, 0, 7); g.arc(38 * k, 36 * k, 2.6 * k, 0, 7); g.fill(); }
+    if (kind === "wine") { g.beginPath(); g.moveTo(18 * k, 8 * k); g.lineTo(46 * k, 8 * k); g.quadraticCurveTo(48 * k, 34 * k, 32 * k, 36 * k); g.quadraticCurveTo(16 * k, 34 * k, 18 * k, 8 * k); g.stroke(); g.beginPath(); g.moveTo(19 * k, 20 * k); g.lineTo(45 * k, 20 * k); g.quadraticCurveTo(44 * k, 33 * k, 32 * k, 34 * k); g.quadraticCurveTo(20 * k, 33 * k, 19 * k, 20 * k); g.fill(); g.beginPath(); g.moveTo(32 * k, 36 * k); g.lineTo(32 * k, 54 * k); g.moveTo(22 * k, 56 * k); g.lineTo(42 * k, 56 * k); g.stroke(); }
+    if (kind === "tree") { g.beginPath(); g.moveTo(32 * k, 6 * k); g.lineTo(50 * k, 32 * k); g.lineTo(42 * k, 32 * k); g.lineTo(54 * k, 48 * k); g.lineTo(10 * k, 48 * k); g.lineTo(22 * k, 32 * k); g.lineTo(14 * k, 32 * k); g.closePath(); g.fill(); g.fillRect(28 * k, 48 * k, 8 * k, 10 * k); }
+    if (kind === "camera") { g.beginPath(); g.roundRect ? g.roundRect(8 * k, 18 * k, 48 * k, 34 * k, 6 * k) : g.rect(8 * k, 18 * k, 48 * k, 34 * k); g.stroke(); g.beginPath(); g.moveTo(22 * k, 18 * k); g.lineTo(26 * k, 11 * k); g.lineTo(38 * k, 11 * k); g.lineTo(42 * k, 18 * k); g.stroke(); g.beginPath(); g.arc(32 * k, 35 * k, 9 * k, 0, 7); g.stroke(); }
+    return png(c);
+  });
+}
+const heart = s => asset(`heart${s}`, () => { const [c, g] = cv(s, s); g.strokeStyle = "#fff"; g.lineWidth = s * .09; g.lineJoin = "round"; g.beginPath(); g.moveTo(s / 2, s * .82); g.bezierCurveTo(s * .05, s * .5, s * .15, s * .12, s / 2, s * .32); g.bezierCurveTo(s * .85, s * .12, s * .95, s * .5, s / 2, s * .82); g.stroke(); return png(c); });
 // torn white frame laid over a photo so the photo looks ripped out of a magazine
 function tornFrame(w, h, seed = 11) {
   return asset(`tf${w}x${h}${seed}`, () => {
@@ -575,35 +643,49 @@ const topbar = (n, light) => `<div class="topbar${light ? " light" : ""}"><span>
 function cardsHTML() {
   const I = state.info, D = I.date ? esc(I.date) : KO.dateLong;
 
+  const feat = [["bull", "청도 소싸움", "전통 민속경기를<br>경기장에서 관람"], ["wine", "와인터널", "100년 옛 터널 속<br>1km 빛의 산책"], ["tree", "국립청도숲체원", "숲속 하룻밤과<br>아침 숲체험"], ["camera", "새마을기념관", "역사 탐방과<br>가족 단체사진"]];
   const c1 = `<div class="card">
     <div class="full" style="${bgi(sky(1080, 1350))}"></div>
-    <div class="patch" style="${box(52, 88, 300, 110, -6)}${bgi(torn(300, 110, "#fbf5e6", 21))}"><span class="jua" style="font-size:25px;color:var(--k-teal);line-height:1.25">다문화도서관 →<br>청도행 버스</span></div>
-    <div class="jua" style="right:60px;top:52px;font-size:26px;color:var(--k-teal)">1 / 5</div>
-    <div class="patch" style="${box(335, 108, 470, 96, 2)}${bgi(torn(470, 96, "#fbf5e6", 22))}"><span class="jua" style="font-size:36px;color:var(--k-teal)">가족과 떠나는 청도 여행</span></div>
-    <div class="patch" style="${box(70, 196, 940, 410, -1.5)}${bgi(torn(940, 410, "#fbf5e6", 23))}">
-      <div class="pen" style="font-size:66px;color:var(--k-orange);line-height:1;margin-top:-6px">다른 문화, 같은 마음!</div>
-      <div class="bh" style="font-size:168px;color:var(--k-teal);line-height:1.02;letter-spacing:2px">다문화캠프</div>
-      <div class="jua" style="font-size:52px;color:var(--k-teal-2);line-height:1.1">— 청도 1박 2일 —</div>
+    <div class="img" style="${box(150, 560, 780, 520)}${bgi(roadScene(780, 520))}"></div>
+    ${stk(persimmonTree(330, 560), -30, 360, 330, 560, -2)}
+    <div class="ph" style="${box(828, 548, 236, 360, 3)}${bgi(img("bull"))}"></div>
+    <div class="img" style="${box(812, 532, 268, 392, 3)}${bgi(tornFrame(268, 392, 42))}"></div>
+    ${stk(bus(360, 216), 350, 838, 360, 216, -2)}
+    <div class="img" style="${box(716, 630, 190, 430, 7)}${bgi(board(190, 430))};display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-top:6px">
+      <span class="jua" style="font-size:26px;color:var(--k-teal);line-height:1.15">사전<br>접수</span>
+      <span class="bh" style="font-size:52px;color:var(--k-orange);line-height:1.05;margin-top:6px">자녀<br>무료</span>
+      <span class="jua" style="font-size:24px;color:var(--k-teal);line-height:1.2;margin-top:8px">성인<br>3만원</span></div>
+    <div style="left:122px;top:720px;width:18px;height:340px;background:#7b5230;border-radius:6px"></div>
+    <div class="sign" style="${box(30, 730, 290, 66, -3)}${bgi(sign(290, 66, "#16808c", 55))};font-size:30px">청도 소싸움</div>
+    <div class="sign" style="${box(30, 806, 290, 66, 2)}${bgi(sign(290, 66, "#ec6a1f", 56))};font-size:30px">와인터널</div>
+    <div class="sign" style="${box(30, 882, 290, 66, -2)}${bgi(sign(290, 66, "#3d8b48", 57))};font-size:30px">숲체원</div>
+    <div class="sign" style="${box(30, 958, 290, 66, 3)}${bgi(sign(290, 66, "#d8412f", 58))};font-size:30px">새마을기념관</div>
+    ${stk(cosmos(150, "#f48fb8", 3), -24, 1010, 150, 150, -10)}
+    ${stk(cosmos(110, "#ffffff", 4), 150, 1000, 110, 110, 12)}
+    ${stk(cosmos(190, "#e2588f", 5), 900, 930, 190, 190, 8)}
+    ${stk(maple(100, 0), 820, 1010, 100, 100, -18)}
+    <div class="patch" style="${box(34, 58, 250, 132, -6)}${bgi(torn(250, 132, "#f7f0dc", 29))}"><span class="jua" style="font-size:22px;color:var(--k-teal);line-height:1.25">10.4(일) – 10.5(월)<br>청도로 떠나는<br>가족 여행</span></div>
+    ${stk(cosmos(64, "#f48fb8", 6), 236, 140, 64, 64)}
+    ${pol("tunnel", 818, 118, 210, 170, 7, "")}
+    <div class="patch" style="${box(345, 118, 400, 124, -2)}${bgi(torn(400, 124, "#fbf5e6", 30))}"><span class="jua" style="font-size:26px;color:var(--k-teal-2);line-height:1">가족과 떠나는</span><span class="bh" style="font-size:52px;color:var(--k-teal);line-height:1.1">청도 1박 2일</span></div>
+    ${stk(maple(80, 1), 318, 96, 80, 80, -20)}
+    ${stk(cosmos(80, "#ffffff", 7), 704, 106, 80, 80, 10)}
+    <div class="patch" style="${box(150, 232, 790, 350, -1.5)}${bgi(torn(790, 350, "#fbf5e6", 31))}">
+      <div class="pen" style="font-size:54px;color:var(--k-orange);line-height:1;margin-top:-10px">다른 문화, 같은 마음!</div>
+      <div class="bh" style="font-size:150px;color:var(--k-teal);line-height:1.02;letter-spacing:2px">다문화캠프</div>
+      <div class="jua" style="font-size:46px;color:var(--k-teal);line-height:1.1;letter-spacing:4px">— 청도 CHEONGDO —</div>
     </div>
-    <div class="brush" style="${box(230, 574, 620, 90, -2)}${bgi(brush(620, 90, "#f6c233", 31))}"><span style="font-size:40px;color:#1f2a2a">체험 · 소통 · 공감 · 추억</span></div>
-    <div class="ph" style="${box(262, 690, 760, 420, 1.5)}${bgi(img("cover"))}"></div>
-    <div class="img" style="${box(246, 674, 792, 452, 1.5)}${bgi(tornFrame(792, 452, 41))}"></div>
-    ${credit("cover") ? `<div class="credit" style="right:70px;top:1070px">${esc(credit("cover"))}</div>` : ""}
-    <div style="left:128px;top:690px;width:20px;height:440px;background:#7b5230;border-radius:6px;box-shadow:2px 4px 8px rgba(0,0,0,.25)"></div>
-    <div class="sign" style="${box(34, 706, 300, 76, -3)}${bgi(sign(300, 76, "#16808c", 51))}">청도 소싸움</div>
-    <div class="sign" style="${box(34, 792, 300, 76, 2)}${bgi(sign(300, 76, "#ec6a1f", 52))}">와인터널</div>
-    <div class="sign" style="${box(34, 878, 300, 76, -2)}${bgi(sign(300, 76, "#3d8b48", 53))}">숲체원</div>
-    <div class="sign" style="${box(34, 964, 300, 76, 3)}${bgi(sign(300, 76, "#d8412f", 54))}">새마을기념관</div>
-    <div class="stamp" style="${box(778, 560, 270, 270, 10)}background:var(--k-orange);color:#fff;border-color:#fff;box-shadow:0 10px 24px rgba(0,0,0,.3)"><div class="ring"></div>
-      <span class="jua" style="font-size:28px">사전접수 시</span><span class="bh" style="font-size:56px;line-height:1.1">자녀 무료</span><span class="jua" style="font-size:36px">성인 3만원</span></div>
-    ${stk(maple(120, 0), 930, 170, 120, 120, 18)}
-    ${stk(maple(90, 1), 18, 590, 90, 90, -20)}
-    <div class="img" style="${box(0, 1110, 1080, 240)}${bgi(kraft(1080, 240, 61))}"></div>
-    ${stk(bus(300, 180), 736, 918, 300, 180, -3)}
-    ${stk(persimmon(150), 170, 1030, 150, 150, -8)}
-    <div class="bh" style="left:330px;top:1150px;font-size:54px;color:var(--k-teal);line-height:1">${I.date ? esc(I.date) : KO.date}</div>
-    <div class="jua" style="left:330px;top:1214px;font-size:30px;color:#4a3a24">${KO.times}</div>
-    <div class="jua" style="right:56px;top:1262px;font-size:28px;color:var(--k-teal)">넘겨서 일정 보기 →</div>
+    ${stk(cosmos(150, "#e2588f", 8), 858, 248, 150, 150, 14)}
+    <div class="brush" style="${box(312, 548, 470, 72, -2)}${bgi(brush(470, 72, "#f6c233", 37))}"><span style="font-size:32px;color:#1f2a2a;letter-spacing:1px">체험. 소통. 공감.</span></div>
+    <div class="img" style="${box(0, 1058, 1080, 292)}${bgi(kraft(1080, 292, 64))}"></div>
+    ${feat.map((f, i) => `<div style="left:${40 + i * 250}px;top:1086px;width:250px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px">
+      <div class="img" style="position:relative;width:52px;height:52px;${bgi(icon(f[0], 64))}"></div>
+      <div class="jua" style="font-size:27px;color:var(--k-teal);line-height:1.1">${f[1]}</div>
+      <div style="font-size:18px;color:#4a3a24;line-height:1.35;font-weight:500">${f[2]}</div></div>
+      ${i ? `<div style="left:${40 + i * 250}px;top:1092px;height:132px;border-left:2px dashed rgba(90,60,30,.35)"></div>` : ""}`).join("")}
+    <div class="brush" style="${box(190, 1252, 570, 76, -1)}${bgi(brush(560, 74, "#16808c", 38))};gap:12px"><span style="font-size:26px;color:#fff">다른 문화, 같은 마음으로 함께 떠나요</span><span class="img" style="position:relative;width:30px;height:30px;${bgi(heart(40))}"></span></div>
+    <div style="left:790px;top:1236px;width:270px;height:104px;transform:rotate(-7deg);border:4px solid rgba(14,95,107,.7);border-radius:16px;padding:4px"><div style="border:2px solid rgba(14,95,107,.6);border-radius:10px;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(14,95,107,.85)">
+      <span class="jua" style="font-size:15px;letter-spacing:1px;white-space:nowrap">REPUBLIC OF KOREA</span><span class="bh" style="font-size:26px;line-height:1.1;white-space:nowrap">청도 CHEONGDO</span><span class="jua" style="font-size:15px;white-space:nowrap">출발 10.04 → 도착 10.05</span></div></div>
   </div>`;
 
   const note = (x, y, w, h, rot, seed, name, desc) => `<div class="img" style="${box(x, y, w, h, rot)}${bgi(torn(w, h, "#fbf5e6", seed))};padding:38px 40px;display:flex;flex-direction:column;gap:10px">
