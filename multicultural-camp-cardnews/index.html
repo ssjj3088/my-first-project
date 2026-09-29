@@ -159,7 +159,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .c1 .places { font-size: 29px; font-weight: 700; color: var(--k-persimmon-2); }
 .c1 .kosub { font-size: 26px; opacity: .8; }
 .c1 .foot { position: absolute; left: 72px; right: 72px; bottom: 52px; display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 26px; font-weight: 700; }
-.c1 .foot .date { font-family: "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.c1 .foot .date { font-family: var(--fb); }
 .c1 .credit { right: 72px; top: 1300px; display: none; }
 
 /* card 2: bullfighting + wine tunnel */
@@ -241,7 +241,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .c5 .cta .go { font-size: 42px; }
 .c5 .cta .how { font-size: 26px; font-weight: 600; color: #d8ecd9; font-family: "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
 .c5 .cta .arrow { width: 88px; height: 88px; border-radius: 50%; background: var(--k-persimmon); flex: none; display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: 800; font-family: "Be Vietnam Pro", sans-serif; }
-.c5 .foot { position: absolute; left: 72px; right: 72px; bottom: 50px; display: flex; justify-content: space-between; font-size: 25px; font-weight: 700; font-family: "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.c5 .foot { position: absolute; left: 72px; right: 72px; bottom: 50px; display: flex; justify-content: space-between; gap: 24px; font-size: 25px; font-weight: 700; font-family: var(--fb); }
 .c5 .kosub { font-size: 26px; color: #fff; opacity: .85; }
 </style>
 
@@ -264,7 +264,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
       <div class="group">
         <div class="group-title">행사 정보 (모든 언어 공통)</div>
-        <div class="field"><label for="fDate">캠프 날짜</label><input id="fDate" type="text"></div>
+        <div class="field"><label for="fDate">캠프 날짜 (비워두면 언어별 자동 표기)</label><input id="fDate" type="text" placeholder="10.4(일) 10:00 – 10.5(월) 17:00"></div>
         <div class="field"><label for="fDeadline">사전접수 마감</label><input id="fDeadline" type="text"></div>
         <div class="field"><label for="fContact">신청 방법 (링크·전화)</label><input id="fContact" type="text"></div>
         <p class="hint">주황색 칸은 아직 기본값입니다. 광고 올리기 전에 꼭 바꿔주세요.</p>
@@ -365,6 +365,7 @@ const LANGS = [
 const T = {
   ko: {
     brand: "다문화캠프 · 1박 2일",
+    date: "2026. 10. 4(일) 10:00 – 10. 5(월) 17:00",
     c1: { eyebrow: "청도 1박 2일 가족캠프", h: "다른 문화,<br>같은 마음!", lead: "가족과 함께 떠나는 청도 다문화캠프", places: "소싸움 · 와인터널 · 숲체원 · 새마을기념관", s1: "사전접수 시", s2: "자녀 무료", s3: "성인 3만원", swipe: "넘겨서 일정 보기 →" },
     c2: { tag: "1일차 오후", h: "전통 소싸움 관람하고<br>빛나는 와인터널 걷기",
       a: { time: "13:20", name: "청도 소싸움 관람", desc: "소와 소가 힘을 겨루는 청도의 전통 민속경기를 경기장에서 직접 봐요." },
@@ -373,12 +374,13 @@ const T = {
       rows: [["17:20", "숲체원 식당에서 저녁식사"], ["18:00", "레크리에이션 & 퀴즈 (상품 증정)"], ["19:00", "마음을 움직이는 마인드 강연"], ["09:00", "아침 숲체험 프로그램 (3시간)"]], day2: "2일차" },
     c4: { tag: "2일차 오후", h: "새마을운동 발상지에서<br>기념사진 한 장", desc: "새마을운동발상지기념관 관람 & 단체 사진 촬영", sched: "한눈에 보는 일정", d1: "1일차", d2: "2일차",
       l1: [["10:00", "다문화도서관 집결·레크"], ["11:20", "점심식사 후 출발"], ["13:20", "청도 소싸움 관람"], ["14:45", "와인터널 구경"], ["17:20", "숲체원 저녁·레크·강연"]],
-      l2: [["07:30", "기상 · 아침식사"], ["09:00", "숲체험 프로그램"], ["12:30", "점심식사"], ["14:00", "새마을운동발상지기념관"], ["16:00", "부산 도착 (예정)"]] },
+      l2: [["07:30", "기상 · 아침식사"], ["09:00", "숲체험 프로그램"], ["12:30", "점심식사"], ["14:00", "새마을운동발상지기념관"], ["17:00", "부산 도착 (예정)"]] },
     c5: { tag: "사전접수 이벤트", h: "지금 신청하면<br>자녀는 무료!", kid: "자녀", free: "무료", adult: "성인", old: "50,000원", neu: "30,000원", off: "40% 할인", incl: "일정 포함: 차량 이동 · 식사 4회 · 숲체원 숙박", go: "지금 신청하기", deadline: "마감" },
     kosub: null
   },
   en: {
     brand: "Multicultural Camp · 2 Days",
+    date: "Sun, Oct 4, 10:00 – Mon, Oct 5, 17:00",
     c1: { eyebrow: "2-day family camp in Cheongdo", h: "Different cultures,<br>one heart!", lead: "A 2-day, 1-night family trip to Cheongdo, Korea", places: "Bullfighting · Wine Tunnel · Forest Stay · Saemaul Hall", s1: "Early bird", s2: "Kids FREE", s3: "Adults<br>₩30,000", swipe: "Swipe for the schedule →" },
     c2: { tag: "Day 1 · Afternoon", h: "Watch Korean bullfighting,<br>walk the glowing Wine Tunnel",
       a: { time: "13:20", name: "Cheongdo Bullfighting", desc: "See Cheongdo's traditional bull-versus-bull contest live at the arena." },
@@ -387,12 +389,13 @@ const T = {
       rows: [["17:20", "Dinner at the forest center"], ["18:00", "Games & quiz with prizes"], ["19:00", "An inspiring mind talk"], ["09:00", "Morning forest program (3 hours)"]], day2: "Day 2" },
     c4: { tag: "Day 2 · Afternoon", h: "Group photo at the birthplace<br>of the Saemaul Movement", desc: "Visit the hall where Korea's New Village Movement began.", sched: "SCHEDULE AT A GLANCE", d1: "Day 1", d2: "Day 2",
       l1: [["10:00", "Meet at the library, games"], ["11:20", "Lunch, then bus"], ["13:20", "Bullfighting"], ["14:45", "Wine Tunnel"], ["17:20", "Dinner, games, talk"]],
-      l2: [["07:30", "Wake up, breakfast"], ["09:00", "Forest program"], ["12:30", "Lunch"], ["14:00", "Saemaul Memorial Hall"], ["16:00", "Back in Busan (approx.)"]] },
+      l2: [["07:30", "Wake up, breakfast"], ["09:00", "Forest program"], ["12:30", "Lunch"], ["14:00", "Saemaul Memorial Hall"], ["17:00", "Back in Busan (approx.)"]] },
     c5: { tag: "Early registration", h: "Sign up early,<br>kids go free!", kid: "Kids", free: "FREE", adult: "Adults", old: "₩50,000", neu: "₩30,000", off: "40% OFF", incl: "Includes bus, 4 meals and a night at the forest center", go: "Sign up now", deadline: "Deadline" },
     kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
   },
   zh: {
     brand: "多元文化营 · 两天一夜",
+    date: "10月4日（周日）10:00 – 10月5日（周一）17:00",
     c1: { eyebrow: "清道两天一夜家庭营", h: "文化不同，<br>心意相同！", lead: "和家人一起去韩国清道，度过两天一夜", places: "斗牛 · 红酒隧道 · 森林住宿 · 新村运动纪念馆", s1: "提前报名", s2: "儿童免费", s3: "成人3万韩元", swipe: "向左滑动查看行程 →" },
     c2: { tag: "第一天 · 下午", h: "观看传统斗牛，<br>漫步灯光红酒隧道",
       a: { time: "13:20", name: "清道斗牛观赏", desc: "在斗牛场现场观看清道传统的牛与牛角力比赛。" },
@@ -401,12 +404,13 @@ const T = {
       rows: [["17:20", "在森林体验院餐厅用晚餐"], ["18:00", "游戏与问答（有奖品）"], ["19:00", "打动人心的心灵讲座"], ["09:00", "上午森林体验活动（3小时）"]], day2: "第二天" },
     c4: { tag: "第二天 · 下午", h: "在新村运动发祥地<br>留下全家合影", desc: "参观新村运动发祥地纪念馆，拍摄集体照。", sched: "行程一览", d1: "第一天", d2: "第二天",
       l1: [["10:00", "多元文化图书馆集合"], ["11:20", "午餐后出发"], ["13:20", "观看清道斗牛"], ["14:45", "参观红酒隧道"], ["17:20", "晚餐·游戏·讲座"]],
-      l2: [["07:30", "起床·早餐"], ["09:00", "森林体验活动"], ["12:30", "午餐"], ["14:00", "新村运动纪念馆"], ["16:00", "预计抵达釜山"]] },
+      l2: [["07:30", "起床·早餐"], ["09:00", "森林体验活动"], ["12:30", "午餐"], ["14:00", "新村运动纪念馆"], ["17:00", "预计抵达釜山"]] },
     c5: { tag: "提前报名优惠", h: "现在报名，<br>儿童免费！", kid: "儿童", free: "免费", adult: "成人", old: "50,000韩元", neu: "30,000韩元", off: "立减40%", incl: "行程包含：往返交通 · 4餐 · 森林体验院住宿", go: "立即报名", deadline: "截止" },
     kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
   },
   vi: {
     brand: "Trại Đa văn hóa · 2 ngày 1 đêm",
+    date: "CN 4/10, 10:00 – T2 5/10, 17:00",
     c1: { eyebrow: "Trại gia đình tại Cheongdo", h: "Khác văn hóa,<br>chung một lòng!", lead: "2 ngày 1 đêm khám phá Cheongdo cùng gia đình", places: "Đấu bò · Hầm rượu vang · Nghỉ trong rừng · Bảo tàng Saemaul", s1: "Đăng ký sớm", s2: "Trẻ em<br>miễn phí", s3: "Người lớn<br>30.000 won", swipe: "Vuốt để xem lịch trình →" },
     c2: { tag: "Ngày 1 · Buổi chiều", h: "Xem đấu bò truyền thống,<br>dạo hầm rượu vang lung linh",
       a: { time: "13:20", name: "Xem đấu bò Cheongdo", desc: "Tận mắt xem trận đấu bò truyền thống của Cheongdo ngay tại sân đấu." },
@@ -415,12 +419,13 @@ const T = {
       rows: [["17:20", "Ăn tối tại nhà ăn của trung tâm"], ["18:00", "Trò chơi & đố vui có quà"], ["19:00", "Buổi nói chuyện truyền cảm hứng"], ["09:00", "Trải nghiệm rừng buổi sáng (3 giờ)"]], day2: "Ngày 2" },
     c4: { tag: "Ngày 2 · Buổi chiều", h: "Chụp ảnh lưu niệm tại nơi<br>khởi nguồn phong trào Saemaul", desc: "Tham quan nhà tưởng niệm phong trào Làng mới (Saemaul) của Hàn Quốc.", sched: "LỊCH TRÌNH TÓM TẮT", d1: "Ngày 1", d2: "Ngày 2",
       l1: [["10:00", "Tập trung tại thư viện"], ["11:20", "Ăn trưa, lên xe"], ["13:20", "Xem đấu bò"], ["14:45", "Hầm rượu vang"], ["17:20", "Ăn tối, trò chơi, nói chuyện"]],
-      l2: [["07:30", "Thức dậy, ăn sáng"], ["09:00", "Trải nghiệm rừng"], ["12:30", "Ăn trưa"], ["14:00", "Nhà tưởng niệm Saemaul"], ["16:00", "Về đến Busan (dự kiến)"]] },
+      l2: [["07:30", "Thức dậy, ăn sáng"], ["09:00", "Trải nghiệm rừng"], ["12:30", "Ăn trưa"], ["14:00", "Nhà tưởng niệm Saemaul"], ["17:00", "Về đến Busan (dự kiến)"]] },
     c5: { tag: "Ưu đãi đăng ký sớm", h: "Đăng ký sớm,<br>trẻ em miễn phí!", kid: "Trẻ em", free: "Miễn phí", adult: "Người lớn", old: "50.000 won", neu: "30.000 won", off: "Giảm 40%", incl: "Gồm xe đưa đón, 4 bữa ăn và 1 đêm nghỉ tại trung tâm rừng", go: "Đăng ký ngay", deadline: "Hạn chót" },
     kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
   },
   th: {
     brand: "ค่ายพหุวัฒนธรรม · 2 วัน 1 คืน",
+    date: "อา. 4 ต.ค. 10:00 – จ. 5 ต.ค. 17:00",
     c1: { eyebrow: "ค่ายครอบครัวที่ชองโด", h: "ต่างวัฒนธรรม<br>ใจเดียวกัน!", lead: "เที่ยวชองโด เกาหลี 2 วัน 1 คืนกับครอบครัว", places: "ชนวัว · อุโมงค์ไวน์ · พักในป่า · หอรำลึกแซมาอึล", s1: "ลงทะเบียนล่วงหน้า", s2: "เด็กฟรี", s3: "ผู้ใหญ่<br>30,000 วอน", swipe: "ปัดเพื่อดูกำหนดการ →" },
     c2: { tag: "วันที่ 1 · ช่วงบ่าย", h: "ชมการชนวัวแบบดั้งเดิม<br>เดินเล่นในอุโมงค์ไวน์",
       a: { time: "13:20", name: "ชมการชนวัวชองโด", desc: "ชมกีฬาพื้นบ้านวัวชนวัวของชองโดที่สนามจริง" },
@@ -429,18 +434,18 @@ const T = {
       rows: [["17:20", "อาหารเย็นที่โรงอาหารของศูนย์"], ["18:00", "เกมและตอบคำถามชิงรางวัล"], ["19:00", "ทอล์กสร้างแรงบันดาลใจ"], ["09:00", "กิจกรรมสัมผัสป่ายามเช้า (3 ชั่วโมง)"]], day2: "วันที่ 2" },
     c4: { tag: "วันที่ 2 · ช่วงบ่าย", h: "ถ่ายรูปหมู่ที่แหล่งกำเนิด<br>ขบวนการแซมาอึล", desc: "เยี่ยมชมหอรำลึกจุดเริ่มต้นขบวนการหมู่บ้านใหม่ (แซมาอึล) ของเกาหลี", sched: "กำหนดการโดยย่อ", d1: "วันที่ 1", d2: "วันที่ 2",
       l1: [["10:00", "รวมตัวที่ห้องสมุด"], ["11:20", "อาหารกลางวัน ขึ้นรถ"], ["13:20", "ชมการชนวัว"], ["14:45", "อุโมงค์ไวน์"], ["17:20", "อาหารเย็น เกม ทอล์ก"]],
-      l2: [["07:30", "ตื่นนอน อาหารเช้า"], ["09:00", "กิจกรรมในป่า"], ["12:30", "อาหารกลางวัน"], ["14:00", "หอรำลึกแซมาอึล"], ["16:00", "ถึงปูซาน (โดยประมาณ)"]] },
+      l2: [["07:30", "ตื่นนอน อาหารเช้า"], ["09:00", "กิจกรรมในป่า"], ["12:30", "อาหารกลางวัน"], ["14:00", "หอรำลึกแซมาอึล"], ["17:00", "ถึงปูซาน (โดยประมาณ)"]] },
     c5: { tag: "โปรลงทะเบียนล่วงหน้า", h: "สมัครตอนนี้<br>เด็กไปฟรี!", kid: "เด็ก", free: "ฟรี", adult: "ผู้ใหญ่", old: "50,000 วอน", neu: "30,000 วอน", off: "ลด 40%", incl: "รวมรถรับส่ง อาหาร 4 มื้อ และที่พัก 1 คืนในศูนย์ป่าไม้", go: "สมัครเลย", deadline: "ปิดรับสมัคร" },
     kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
   }
 };
 
 const COPY = {
-  ko: { head: "사전접수 시 자녀 무료 · 성인 3만원", body: "다른 문화, 같은 마음! 🌿\n가족과 함께 떠나는 청도 1박 2일 다문화캠프\n\n✔ 청도 소싸움 관람\n✔ 100년 된 터널 속 와인터널 산책\n✔ 국립청도숲체원 숙박 · 숲체험 · 레크리에이션(상품)\n✔ 새마을운동발상지기념관 관람\n\n🎁 사전접수 이벤트\n자녀 무료 · 성인 50,000원 → 30,000원\n\n지금 신청하세요!" },
-  en: { head: "Kids FREE · Adults ₩30,000 (early bird)", body: "Different cultures, one heart! 🌿\nJoin our 2-day, 1-night multicultural family camp in Cheongdo.\n\n✔ Traditional Korean bullfighting\n✔ A walk through the 100-year-old Wine Tunnel\n✔ A night, games & forest program at the National Cheongdo Forest Center\n✔ Saemaul Movement Memorial Hall\n\n🎁 Early registration\nKids FREE · Adults ₩30,000 (regular ₩50,000)\n\nSign up now!" },
-  zh: { head: "提前报名：儿童免费 · 成人3万韩元", body: "文化不同，心意相同！🌿\n和家人一起参加清道两天一夜多元文化营。\n\n✔ 观看清道传统斗牛\n✔ 漫步百年红酒隧道\n✔ 入住国立清道森林体验院 · 森林体验 · 有奖游戏\n✔ 参观新村运动发祥地纪念馆\n\n🎁 提前报名优惠\n儿童免费 · 成人仅需30,000韩元（原价50,000韩元）\n\n立即报名！" },
-  vi: { head: "Đăng ký sớm: Trẻ em miễn phí · Người lớn 30.000 won", body: "Khác văn hóa, chung một lòng! 🌿\nCùng gia đình tham gia Trại Đa văn hóa 2 ngày 1 đêm tại Cheongdo.\n\n✔ Xem đấu bò truyền thống\n✔ Dạo bước hầm rượu vang hơn 100 năm tuổi\n✔ Nghỉ đêm, trò chơi có quà & trải nghiệm rừng tại Trung tâm rừng quốc gia Cheongdo\n✔ Tham quan Nhà tưởng niệm phong trào Saemaul\n\n🎁 Ưu đãi đăng ký sớm\nTrẻ em MIỄN PHÍ · Người lớn chỉ 30.000 won (giá gốc 50.000 won)\n\nĐăng ký ngay!" },
-  th: { head: "ลงทะเบียนล่วงหน้า: เด็กฟรี · ผู้ใหญ่ 30,000 วอน", body: "ต่างวัฒนธรรม ใจเดียวกัน! 🌿\nชวนครอบครัวมาร่วมค่ายพหุวัฒนธรรม 2 วัน 1 คืน ที่ชองโด\n\n✔ ชมการชนวัวแบบดั้งเดิม\n✔ เดินเล่นในอุโมงค์ไวน์อายุกว่า 100 ปี\n✔ ค้างคืน เล่นเกมชิงรางวัล และทำกิจกรรมในป่าที่ศูนย์ป่าไม้แห่งชาติชองโด\n✔ เยี่ยมชมหอรำลึกขบวนการแซมาอึล\n\n🎁 โปรลงทะเบียนล่วงหน้า\nเด็กฟรี · ผู้ใหญ่เพียง 30,000 วอน (ปกติ 50,000 วอน)\n\nสมัครเลย!" }
+  ko: { head: "사전접수 시 자녀 무료 · 성인 3만원", body: "다른 문화, 같은 마음! 🌿\n가족과 함께 떠나는 청도 1박 2일 다문화캠프\n📅 10월 4일(일) 오전 10시 출발 ~ 10월 5일(월) 오후 5시 도착 예정\n\n✔ 청도 소싸움 관람\n✔ 100년 된 터널 속 와인터널 산책\n✔ 국립청도숲체원 숙박 · 숲체험 · 레크리에이션(상품)\n✔ 새마을운동발상지기념관 관람\n\n🎁 사전접수 이벤트\n자녀 무료 · 성인 50,000원 → 30,000원\n\n지금 신청하세요!" },
+  en: { head: "Kids FREE · Adults ₩30,000 (early bird)", body: "Different cultures, one heart! 🌿\nJoin our 2-day, 1-night multicultural family camp in Cheongdo.\n📅 Sun, Oct 4, 10 AM – Mon, Oct 5, 5 PM (return)\n\n✔ Traditional Korean bullfighting\n✔ A walk through the 100-year-old Wine Tunnel\n✔ A night, games & forest program at the National Cheongdo Forest Center\n✔ Saemaul Movement Memorial Hall\n\n🎁 Early registration\nKids FREE · Adults ₩30,000 (regular ₩50,000)\n\nSign up now!" },
+  zh: { head: "提前报名：儿童免费 · 成人3万韩元", body: "文化不同，心意相同！🌿\n和家人一起参加清道两天一夜多元文化营。\n📅 10月4日（周日）上午10点出发 ~ 10月5日（周一）下午5点返回\n\n✔ 观看清道传统斗牛\n✔ 漫步百年红酒隧道\n✔ 入住国立清道森林体验院 · 森林体验 · 有奖游戏\n✔ 参观新村运动发祥地纪念馆\n\n🎁 提前报名优惠\n儿童免费 · 成人仅需30,000韩元（原价50,000韩元）\n\n立即报名！" },
+  vi: { head: "Đăng ký sớm: Trẻ em miễn phí · Người lớn 30.000 won", body: "Khác văn hóa, chung một lòng! 🌿\nCùng gia đình tham gia Trại Đa văn hóa 2 ngày 1 đêm tại Cheongdo.\n📅 Chủ nhật 4/10, 10:00 sáng xuất phát – Thứ Hai 5/10, 17:00 về đến nơi\n\n✔ Xem đấu bò truyền thống\n✔ Dạo bước hầm rượu vang hơn 100 năm tuổi\n✔ Nghỉ đêm, trò chơi có quà & trải nghiệm rừng tại Trung tâm rừng quốc gia Cheongdo\n✔ Tham quan Nhà tưởng niệm phong trào Saemaul\n\n🎁 Ưu đãi đăng ký sớm\nTrẻ em MIỄN PHÍ · Người lớn chỉ 30.000 won (giá gốc 50.000 won)\n\nĐăng ký ngay!" },
+  th: { head: "ลงทะเบียนล่วงหน้า: เด็กฟรี · ผู้ใหญ่ 30,000 วอน", body: "ต่างวัฒนธรรม ใจเดียวกัน! 🌿\nชวนครอบครัวมาร่วมค่ายพหุวัฒนธรรม 2 วัน 1 คืน ที่ชองโด\n📅 อาทิตย์ 4 ต.ค. ออกเดินทาง 10:00 น. – จันทร์ 5 ต.ค. กลับถึง 17:00 น.\n\n✔ ชมการชนวัวแบบดั้งเดิม\n✔ เดินเล่นในอุโมงค์ไวน์อายุกว่า 100 ปี\n✔ ค้างคืน เล่นเกมชิงรางวัล และทำกิจกรรมในป่าที่ศูนย์ป่าไม้แห่งชาติชองโด\n✔ เยี่ยมชมหอรำลึกขบวนการแซมาอึล\n\n🎁 โปรลงทะเบียนล่วงหน้า\nเด็กฟรี · ผู้ใหญ่เพียง 30,000 วอน (ปกติ 50,000 วอน)\n\nสมัครเลย!" }
 };
 
 const SLOTS = [
@@ -451,7 +456,7 @@ const SLOTS = [
   { id: "saemaul", name: "새마을운동발상지기념관", tip: "" }
 ];
 
-const DEFAULTS = { date: "2026. 10. ○ – 10. ○", deadline: "10. ○ (○)", contact: "신청 링크 또는 전화번호" };
+const DEFAULTS = { date: "", deadline: "10. ○ (○)", contact: "신청 링크 또는 전화번호" };
 
 /* ---------- state ---------- */
 const store = {
@@ -461,10 +466,12 @@ const store = {
 const state = {
   lang: store.get("lang", "ko"),
   info: Object.assign({}, DEFAULTS, store.get("info", {})),
+  legacyDate: "2026. 10. ○ – 10. ○",
   photos: store.get("photos", {}),
   credits: store.get("credits", {})
 };
 if (!T[state.lang]) state.lang = "ko";
+if (state.info.date === state.legacyDate) state.info.date = "";
 
 /* ---------- fallback illustrations (used until a real photo is added) ---------- */
 function art(id) {
@@ -534,6 +541,7 @@ function topbar(t, n) { return `<div class="topbar"><div class="brand"><span cla
 
 function cardsHTML(lang) {
   const t = T[lang], I = state.info, ks = t.kosub;
+  const D = I.date && I.date !== state.legacyDate ? esc(I.date) : t.date;
   const c1 = `<div class="card c1" data-lang="${lang}">
     <div class="ph" ${bg("cover")}></div><div class="shade"></div>${topbar(t, 1)}
     <div class="sticker"><div class="s1">${t.c1.s1}</div><div class="s2 disp">${t.c1.s2}</div><div class="s3">${t.c1.s3}</div></div>
@@ -544,7 +552,7 @@ function cardsHTML(lang) {
       ${ks ? `<div class="kosub">${ks}</div>` : ""}
       <div class="places">${t.c1.places}</div>
     </div>
-    <div class="foot"><span class="date">${esc(I.date)}</span><span>${t.c1.swipe}</span></div>
+    <div class="foot"><span class="date">${D}</span><span>${t.c1.swipe}</span></div>
     ${credit("cover") ? `<div class="credit" style="right:72px;top:120px">${esc(credit("cover"))}</div>` : ""}
   </div>`;
   const row = (id, r) => `<div class="row"><div class="pic"><div class="ph" ${bg(id)}></div>${cr(id)}</div>
@@ -576,7 +584,7 @@ function cardsHTML(lang) {
     </div>
     <div class="incl">${t.c5.incl}</div>
     <div class="cta"><div class="l"><div class="go disp">${t.c5.go}</div><div class="how">${esc(I.contact)}</div></div><div class="arrow">→</div></div>
-    <div class="foot"><span>${esc(I.date)}</span><span>${t.c5.deadline} ${esc(I.deadline)}</span></div>
+    <div class="foot"><span>${D}</span><span>${t.c5.deadline} ${esc(I.deadline)}</span></div>
   </div>`;
   return [c1, c2, c3, c4, c5];
 }
@@ -609,7 +617,7 @@ function renderSlots() {
 function renderInfo() {
   [["fDate", "date"], ["fDeadline", "deadline"], ["fContact", "contact"]].forEach(([el, k]) => {
     const input = $("#" + el); if (document.activeElement !== input) input.value = state.info[k];
-    input.classList.toggle("todo", state.info[k] === DEFAULTS[k]);
+    input.classList.toggle("todo", k !== "date" && state.info[k] === DEFAULTS[k]);
   });
 }
 function renderCopy() {
