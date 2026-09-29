@@ -1,0 +1,696 @@
+<title>청도 다문화캠프 카드뉴스</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Be+Vietnam+Pro:wght@400;600;700;800&family=Noto+Sans+KR:wght@400;500;700;900&family=Noto+Sans+SC:wght@500;700;900&family=Noto+Sans+Thai:wght@400;600;800&display=swap">
+<style>
+/* Layout: editor sidebar (language, event details, photos) + 5-card carousel grid, ad guide below. Cards are fixed 1080×1350 images; the UI around them follows the viewer's theme. */
+:root {
+  /* page UI */
+  --bg: #f5f3ec;
+  --surface: #fffdf8;
+  --line: #ddd8c8;
+  --fg: #1d2a22;
+  --muted: #5d6a60;
+  --accent: #d9581a;
+  --accent-fg: #ffffff;
+  --accent-soft: #fbe3d4;
+  --focus: #2e7cc4;
+  --f-ui: "Noto Sans KR", "Be Vietnam Pro", system-ui, sans-serif;
+  --f-ui-head: "Black Han Sans", "Noto Sans KR", sans-serif;
+  /* card artwork (fixed: these are exported images) */
+  --k-green: #1f4d3a;
+  --k-green-2: #2f6b4f;
+  --k-leaf: #8fbf5a;
+  --k-persimmon: #e8601c;
+  --k-persimmon-2: #ff8a3d;
+  --k-cream: #fff7ec;
+  --k-ink: #16241c;
+  --k-sky: #2e7cc4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #151a17; --surface: #1d2420; --line: #334039; --fg: #e9ede6; --muted: #a3afa6;
+    --accent: #ff8a4c; --accent-fg: #1b0f08; --accent-soft: #3a261b; --focus: #7ab8f0;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #151a17; --surface: #1d2420; --line: #334039; --fg: #e9ede6; --muted: #a3afa6;
+  --accent: #ff8a4c; --accent-fg: #1b0f08; --accent-soft: #3a261b; --focus: #7ab8f0;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-ui); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 1320px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+
+.page-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px 24px; margin-bottom: 24px; }
+.page-head h1 { font-family: var(--f-ui-head); font-weight: 400; font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.5px; line-height: 1.1; }
+.page-head h1 span { color: var(--accent); }
+.page-head p { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+
+.layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 900px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 22px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); }
+@media (max-width: 900px) { .panel { position: static; } }
+.group { display: grid; gap: 10px; }
+.group-title { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.langs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
+.langs button { border: 0; background: transparent; border-radius: 7px; padding: 8px 2px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.langs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 13px; font-weight: 600; }
+.field input { width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.field input.todo { border-color: var(--accent); background: var(--accent-soft); }
+.hint { font-size: 12px; color: var(--muted); margin: 0; }
+.slots { display: grid; gap: 8px; }
+.slot { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 10px; align-items: center; }
+.slot .thumb { width: 56px; height: 56px; border-radius: 8px; background-size: cover; background-position: center; border: 1px solid var(--line); }
+.slot .meta { display: grid; gap: 4px; min-width: 0; }
+.slot .row { display: flex; gap: 6px; align-items: center; justify-content: space-between; }
+.slot .name { font-size: 13px; font-weight: 700; }
+.slot .state { font-size: 11px; color: var(--muted); }
+.slot .state.ok { color: var(--k-green-2); }
+.slot input[type="text"] { width: 100%; padding: 5px 8px; font-size: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.pick { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; white-space: nowrap; }
+.pick:hover { border-color: var(--accent); }
+.btn { border: 0; border-radius: 10px; padding: 11px 16px; font-weight: 700; cursor: pointer; background: var(--accent); color: var(--accent-fg); }
+.btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--fg); }
+.btn:disabled { opacity: 0.6; cursor: progress; }
+.actions { display: grid; gap: 8px; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
+.cell { display: grid; gap: 8px; min-width: 0; }
+.cell-head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+.cell-head b { font-weight: 700; }
+.cell-head button { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+.frame { position: relative; width: 100%; max-width: 100%; aspect-ratio: 1080 / 1350; overflow: hidden; border-radius: 10px; box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.08); background: #ddd; }
+.frame .card { position: absolute; top: 0; left: 0; transform-origin: 0 0; transform: scale(var(--s, 0.25)); }
+.safe-toggle { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+.show-safe .frame::after { content: ""; position: absolute; left: 0; right: 0; top: 10%; bottom: 10%; border-block: 2px dashed rgba(232, 96, 28, .9); pointer-events: none; }
+
+.guide { margin-top: 48px; display: grid; gap: 18px; }
+.guide h2 { font-family: var(--f-ui-head); font-weight: 400; font-size: 30px; }
+.guide-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.gcard { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; min-width: 0; }
+.gcard h3 { font-size: 17px; margin-bottom: 8px; }
+.gcard p, .gcard li { color: var(--fg); }
+.gcard ul, .gcard ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+.gcard .k { color: var(--accent); font-weight: 700; }
+.copy-list { display: grid; gap: 12px; }
+.copy-item { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: var(--bg); min-width: 0; }
+.copy-item header { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; }
+.copy-item pre { margin: 0; white-space: pre-wrap; word-break: break-word; font-family: var(--f-ui); font-size: 14px; }
+.copy-item .copy { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; }
+
+.modal[hidden] { display: none; }
+.modal { position: fixed; inset: 0; background: rgba(10, 16, 12, .72); z-index: 50; display: grid; place-items: center; padding: 16px; }
+.sheet { background: var(--surface); color: var(--fg); border-radius: 14px; width: min(1100px, 100%); max-height: 92vh; overflow: auto; padding: 18px; display: grid; gap: 14px; }
+.sheet-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.sheet-head p { margin: 2px 0 0; color: var(--muted); font-size: 13px; }
+.shots { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.shots figure { margin: 0; display: grid; gap: 4px; }
+.shots img { width: 100%; border-radius: 8px; border: 1px solid var(--line); }
+.shots figcaption { font-size: 12px; color: var(--muted); }
+#stage { position: fixed; left: 0; top: 0; width: 1080px; height: 1350px; z-index: -10; pointer-events: none; }
+.toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 20px); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 60; }
+
+/* ───────────── Card artwork (1080 × 1350, 1:1-safe zone = y 135…1215) ───────────── */
+.card { width: 1080px; height: 1350px; overflow: hidden; background: var(--k-cream); color: var(--k-ink); font-family: var(--fb); line-height: 1.3; }
+.card[data-lang="ko"] { --fd: "Black Han Sans", "Noto Sans KR", sans-serif; --fd-w: 400; --fb: "Noto Sans KR", "Be Vietnam Pro", sans-serif; }
+.card[data-lang="en"], .card[data-lang="vi"] { --fd: "Be Vietnam Pro", "Noto Sans KR", sans-serif; --fd-w: 800; --fb: "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.card[data-lang="zh"] { --fd: "Noto Sans SC", "Noto Sans KR", sans-serif; --fd-w: 900; --fb: "Noto Sans SC", "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.card[data-lang="th"] { --fd: "Noto Sans Thai", "Be Vietnam Pro", "Noto Sans KR", sans-serif; --fd-w: 800; --fb: "Noto Sans Thai", "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.card .disp { font-family: var(--fd); font-weight: var(--fd-w); letter-spacing: -0.01em; }
+.card[data-lang="ko"] .disp { letter-spacing: 0; }
+.card .ko { font-family: "Noto Sans KR", sans-serif; }
+.card .num { font-family: "Be Vietnam Pro", "Noto Sans KR", sans-serif; font-weight: 800; }
+.card .ph { position: absolute; background-size: cover; background-position: center; }
+.card .credit { position: absolute; font-size: 17px; font-family: "Noto Sans KR", sans-serif; color: rgba(255,255,255,.85); text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+.card .topbar { position: absolute; top: 46px; left: 64px; right: 64px; display: flex; justify-content: space-between; align-items: center; font-size: 26px; font-weight: 700; }
+.card .topbar .brand { display: flex; align-items: center; gap: 12px; }
+.card .topbar .dot { width: 18px; height: 18px; border-radius: 50%; background: var(--k-persimmon); }
+.card .topbar .pg { font-family: "Be Vietnam Pro", sans-serif; font-weight: 700; font-size: 24px; opacity: .85; }
+.card .tag { display: inline-block; padding: 10px 24px; border-radius: 999px; font-size: 28px; font-weight: 700; background: var(--k-green); color: #fff; }
+.card .kosub { font-family: "Noto Sans KR", sans-serif; font-weight: 500; }
+
+/* card 1: cover */
+.c1 .ph { inset: 0; }
+.c1 .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(12,34,25,.62) 0%, rgba(12,34,25,0) 22%, rgba(12,34,25,0) 38%, rgba(12,34,25,.88) 66%, rgba(12,34,25,.97) 100%); }
+.c1 .topbar { color: #fff; }
+.c1 .sticker { position: absolute; top: 160px; right: 70px; width: 300px; height: 300px; border-radius: 50%; background: var(--k-persimmon); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transform: rotate(-8deg); box-shadow: 0 12px 30px rgba(0,0,0,.3); border: 6px solid #fff; padding: 20px; }
+.c1 .sticker .s1 { font-size: 28px; font-weight: 700; opacity: .95; }
+.c1 .sticker .s2 { font-size: 54px; line-height: 1.1; margin: 6px 0; }
+.c1 .sticker .s3 { font-size: 34px; font-weight: 800; }
+.card:not([data-lang="ko"]):not([data-lang="zh"]).c1 .sticker { width: 320px; height: 320px; top: 150px; }
+.card:not([data-lang="ko"]):not([data-lang="zh"]).c1 .sticker .s1 { font-size: 24px; }
+.card:not([data-lang="ko"]):not([data-lang="zh"]).c1 .sticker .s2 { font-size: 42px; }
+.card:not([data-lang="ko"]):not([data-lang="zh"]).c1 .sticker .s3 { font-size: 27px; line-height: 1.2; }
+.c1 .body { position: absolute; left: 72px; right: 72px; bottom: 150px; color: #fff; display: flex; flex-direction: column; gap: 22px; }
+.c1 .eyebrow { align-self: flex-start; background: var(--k-leaf); color: var(--k-ink); padding: 10px 24px; border-radius: 999px; font-size: 30px; font-weight: 700; }
+.c1 h2 { font-size: 132px; line-height: 1.02; color: #fff; }
+.card[data-lang="en"].c1 h2, .card[data-lang="vi"].c1 h2 { font-size: 104px; line-height: 1.04; }
+.card[data-lang="th"].c1 h2 { font-size: 112px; line-height: 1.2; }
+.c1 .lead { font-size: 38px; font-weight: 500; opacity: .96; }
+.c1 .places { font-size: 29px; font-weight: 700; color: var(--k-persimmon-2); }
+.c1 .kosub { font-size: 26px; opacity: .8; }
+.c1 .foot { position: absolute; left: 72px; right: 72px; bottom: 52px; display: flex; justify-content: space-between; align-items: center; color: #fff; font-size: 26px; font-weight: 700; }
+.c1 .foot .date { font-family: "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.c1 .credit { right: 72px; top: 1300px; display: none; }
+
+/* card 2: bullfighting + wine tunnel */
+.c2 .topbar { color: var(--k-green); }
+.c2 .head { position: absolute; top: 150px; left: 72px; right: 72px; display: flex; flex-direction: column; gap: 20px; }
+.c2 h2 { font-size: 72px; line-height: 1.12; color: var(--k-green); }
+.card[data-lang="en"].c2 h2, .card[data-lang="vi"].c2 h2, .card[data-lang="th"].c2 h2 { font-size: 60px; }
+.c2 .kosub { font-size: 26px; color: #56665b; }
+.c2 .rows { position: absolute; left: 72px; right: 72px; top: 520px; display: flex; flex-direction: column; gap: 40px; }
+.c2 .row { display: flex; gap: 36px; align-items: center; height: 320px; }
+.c2 .pic { position: relative; width: 430px; height: 320px; border-radius: 28px; overflow: hidden; flex: none; }
+.c2 .pic .ph { inset: 0; }
+.c2 .pic .credit { left: 16px; bottom: 12px; }
+.c2 .txt { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.c2 .time { align-self: flex-start; background: var(--k-persimmon); color: #fff; padding: 6px 18px; border-radius: 10px; font-size: 28px; }
+.c2 .name { font-size: 46px; font-weight: 800; color: var(--k-ink); line-height: 1.15; }
+.c2 .desc { font-size: 29px; color: #3c4a40; line-height: 1.45; }
+.card[data-lang="th"].c2 .desc { line-height: 1.55; }
+
+/* card 3: forest centre */
+.c3 { background: var(--k-green); }
+.c3 .ph { left: 0; right: 0; top: 0; height: 640px; }
+.c3 .topshade { position: absolute; left: 0; right: 0; top: 0; height: 240px; background: linear-gradient(180deg, rgba(10,30,20,.6), rgba(10,30,20,0)); }
+.c3 .topbar { color: #fff; }
+.c3 .credit { right: 72px; top: 520px; }
+.c3 .panel3 { position: absolute; left: 0; right: 0; top: 560px; bottom: 0; background: var(--k-cream); border-radius: 56px 56px 0 0; padding: 56px 72px 0; display: flex; flex-direction: column; gap: 18px; }
+.c3 h2 { font-size: 70px; line-height: 1.12; color: var(--k-green); }
+.card[data-lang="en"].c3 h2, .card[data-lang="vi"].c3 h2, .card[data-lang="th"].c3 h2 { font-size: 58px; }
+.c3 .list { display: flex; flex-direction: column; margin-top: 10px; }
+.c3 .li { display: flex; align-items: center; gap: 28px; padding: 14px 0; border-top: 2px solid #eadfcc; }
+.c3 .li:first-child { border-top: 0; }
+.c3 .li .t { width: 130px; flex: none; font-size: 32px; color: var(--k-persimmon); }
+.c3 .li .x { font-size: 34px; font-weight: 700; color: var(--k-ink); }
+.c3 .li .d { font-size: 22px; font-weight: 700; color: var(--k-green-2); display: block; margin-bottom: 2px; }
+.c3 .kosub { font-size: 24px; color: #56665b; }
+
+/* card 4: Saemaul hall + schedule */
+.c4 .ph { left: 0; right: 0; top: 0; height: 520px; }
+.c4 .topshade { position: absolute; left: 0; right: 0; top: 0; height: 220px; background: linear-gradient(180deg, rgba(10,30,20,.55), rgba(10,30,20,0)); }
+.c4 .topbar { color: #fff; }
+.c4 .credit { right: 72px; top: 410px; }
+.c4 .panel4 { position: absolute; left: 0; right: 0; top: 460px; bottom: 0; background: var(--k-cream); border-radius: 56px 56px 0 0; padding: 50px 72px 0; display: flex; flex-direction: column; gap: 14px; }
+.c4 .tag { align-self: flex-start; background: var(--k-sky); }
+.c4 h2 { font-size: 60px; line-height: 1.12; color: var(--k-green); }
+.card[data-lang="en"].c4 h2, .card[data-lang="vi"].c4 h2, .card[data-lang="th"].c4 h2 { font-size: 50px; }
+.c4 .desc { font-size: 28px; color: #3c4a40; }
+.c4 .sched { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; background: #fff; border-radius: 28px; padding: 26px 30px; border: 2px solid #eadfcc; }
+.c4 .sched h4 { margin: 0 0 10px; font-size: 28px; color: var(--k-persimmon); font-weight: 800; }
+.c4 .sched .ln { display: flex; gap: 14px; font-size: 23px; line-height: 1.35; padding: 5px 0; }
+.c4 .sched .ln .t { width: 74px; flex: none; color: var(--k-green-2); font-size: 23px; }
+.c4 .sched .ln .v { color: var(--k-ink); font-weight: 500; min-width: 0; }
+.c4 .schedtitle { font-size: 24px; font-weight: 800; color: var(--k-green); letter-spacing: .02em; margin-top: 6px; }
+
+/* card 5: offer + CTA */
+.c5 { background: var(--k-persimmon); color: #fff; }
+.c5 .topbar { color: #fff; }
+.c5 .topbar .dot { background: #fff; }
+.c5 .thumbs { position: absolute; top: 140px; left: 72px; right: 72px; display: flex; gap: 20px; }
+.c5 .thumbs .ph { position: relative; width: 150px; height: 150px; border-radius: 50%; border: 6px solid #fff; flex: none; box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+.c5 .head { position: absolute; top: 330px; left: 72px; right: 72px; display: flex; flex-direction: column; gap: 18px; }
+.c5 .tag { align-self: flex-start; background: #fff; color: var(--k-persimmon); }
+.c5 h2 { font-size: 100px; line-height: 1.05; color: #fff; }
+.card[data-lang="en"].c5 h2, .card[data-lang="vi"].c5 h2 { font-size: 88px; }
+.card[data-lang="th"].c5 h2 { font-size: 88px; line-height: 1.2; }
+.c5 .prices { position: absolute; top: 700px; left: 72px; right: 72px; display: grid; grid-template-columns: 1fr 1.25fr; gap: 24px; }
+.c5 .price { background: var(--k-cream); color: var(--k-ink); border-radius: 32px; padding: 30px 32px; display: flex; flex-direction: column; gap: 6px; position: relative; min-height: 250px; justify-content: center; }
+.c5 .price .lbl { font-size: 32px; font-weight: 800; color: var(--k-green); }
+.c5 .price .big { font-size: 84px; line-height: 1.05; color: var(--k-green); }
+.c5 .price .old { font-size: 34px; color: #7a857c; text-decoration: line-through; text-decoration-thickness: 3px; }
+.c5 .price .new { font-size: 80px; line-height: 1.05; color: var(--k-persimmon); white-space: nowrap; }
+.c5 .price .big { white-space: nowrap; }
+.card[data-lang="vi"].c5 .price .big, .card[data-lang="th"].c5 .price .big { font-size: 64px; }
+.card[data-lang="vi"].c5 .price .new, .card[data-lang="th"].c5 .price .new { font-size: 60px; }
+.card[data-lang="vi"].c1 .lead { font-size: 34px; }
+.c5 .price .off { position: absolute; top: -22px; right: -14px; background: var(--k-green); color: #fff; font-size: 28px; font-weight: 800; padding: 10px 18px; border-radius: 14px; transform: rotate(6deg); }
+.c5 .incl { position: absolute; top: 985px; left: 72px; right: 72px; font-size: 27px; font-weight: 600; opacity: .95; }
+.c5 .cta { position: absolute; left: 72px; right: 72px; top: 1050px; height: 150px; background: var(--k-green); border-radius: 32px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; gap: 24px; }
+.c5 .cta .l { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.c5 .cta .go { font-size: 42px; }
+.c5 .cta .how { font-size: 26px; font-weight: 600; color: #d8ecd9; font-family: "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.c5 .cta .arrow { width: 88px; height: 88px; border-radius: 50%; background: var(--k-persimmon); flex: none; display: flex; align-items: center; justify-content: center; font-size: 50px; font-weight: 800; font-family: "Be Vietnam Pro", sans-serif; }
+.c5 .foot { position: absolute; left: 72px; right: 72px; bottom: 50px; display: flex; justify-content: space-between; font-size: 25px; font-weight: 700; font-family: "Be Vietnam Pro", "Noto Sans KR", sans-serif; }
+.c5 .kosub { font-size: 26px; color: #fff; opacity: .85; }
+</style>
+
+<div class="wrap">
+  <header class="page-head">
+    <div>
+      <h1>청도 <span>다문화캠프</span> 카드뉴스</h1>
+      <p>인스타그램·페이스북 광고용 4:5 캐러셀 5장. 언어를 고르고, 관광지 사진을 넣고, 일정 정보를 채운 뒤 PNG로 만드세요.</p>
+    </div>
+    <label class="safe-toggle"><input type="checkbox" id="safeToggle"> 1:1 잘림 안전선 보기</label>
+  </header>
+
+  <div class="layout">
+    <aside class="panel" aria-label="카드 설정">
+      <div class="group">
+        <div class="group-title">언어</div>
+        <div class="langs" id="langs" role="group" aria-label="카드 언어"></div>
+        <p class="hint">외국어 버전은 그 언어가 크게, 한국어가 작게 같이 들어갑니다.</p>
+      </div>
+
+      <div class="group">
+        <div class="group-title">행사 정보 (모든 언어 공통)</div>
+        <div class="field"><label for="fDate">캠프 날짜</label><input id="fDate" type="text"></div>
+        <div class="field"><label for="fDeadline">사전접수 마감</label><input id="fDeadline" type="text"></div>
+        <div class="field"><label for="fContact">신청 방법 (링크·전화)</label><input id="fContact" type="text"></div>
+        <p class="hint">주황색 칸은 아직 기본값입니다. 광고 올리기 전에 꼭 바꿔주세요.</p>
+      </div>
+
+      <div class="group">
+        <div class="group-title">관광지 사진</div>
+        <div class="slots" id="slots"></div>
+        <p class="hint">사진이 없으면 일러스트가 들어갑니다. 출처 칸은 공공누리 표기용이며 카드 사진 모서리에 작게 표시됩니다.</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn" id="exportLang" type="button">이 언어 5장 PNG 만들기</button>
+        <button class="btn ghost" id="exportAll" type="button">5개 언어 전부 (25장) 만들기</button>
+      </div>
+    </aside>
+
+    <section aria-label="카드 미리보기">
+      <div class="cards" id="cards"></div>
+    </section>
+  </div>
+
+  <section class="guide" aria-labelledby="guideTitle">
+    <h2 id="guideTitle">유료광고 운영 가이드</h2>
+    <div class="guide-grid">
+      <article class="gcard">
+        <h3>1. 언어는 카드 한 장에 섞지 말고, 언어별로 한 세트씩</h3>
+        <ul>
+          <li>5개 언어를 한 장에 넣으면 글씨가 작아지고, 누구에게도 "내 얘기"로 안 읽힙니다.</li>
+          <li>그래서 언어마다 5장 세트를 따로 만들고, 그 언어를 크게 + 한국어를 작게 넣었습니다. 한국인 배우자와 함께 보기에도 좋습니다.</li>
+          <li>Meta 광고관리자의 광고 단계에서 <span class="k">언어 추가</span>를 켜고 기본은 한국어, 추가로 영어·중국어·베트남어·태국어 세트와 문구를 넣으면 사용자의 앱 언어에 맞는 버전이 자동으로 나갑니다.</li>
+          <li>언어별 성과를 따로 보고 싶다면 광고세트를 언어별로 나누고 타게팅의 <span class="k">언어</span> 항목을 각각 지정하세요.</li>
+        </ul>
+      </article>
+      <article class="gcard">
+        <h3>2. 타게팅과 예산 (남은 기간이 며칠뿐일 때)</h3>
+        <ul>
+          <li>지역: 집결지(다문화도서관) 기준 반경 15~25km. 출신국·민족으로는 타게팅할 수 없으니 <span class="k">언어</span>와 <span class="k">지역</span>으로 좁힙니다.</li>
+          <li>연령: 25~54세, 관심사: 육아·가족여행·캠핑.</li>
+          <li>목표: 신청 링크가 있으면 <span class="k">트래픽/리드</span>, 전화·카톡 접수면 <span class="k">메시지</span> 캠페인.</li>
+          <li>기간이 짧아 학습이 끝나기 어렵습니다. 광고 수는 적게, 예산은 마감 전 3~4일에 몰아서 쓰세요.</li>
+        </ul>
+      </article>
+      <article class="gcard">
+        <h3>3. 캐러셀 순서와 규격</h3>
+        <ol>
+          <li><b>표지</b>: 한 장만 보여도 "자녀 무료·성인 3만원"이 보이게.</li>
+          <li><b>1일차 오후</b>: 소싸움 + 와인터널</li>
+          <li><b>숲체원</b>: 저녁 레크·퀴즈(상품)·강연·숙박·숲체험</li>
+          <li><b>2일차</b>: 새마을기념관 + 전체 일정 요약</li>
+          <li><b>사전접수 이벤트</b>: 가격 비교 + 신청 방법</li>
+        </ol>
+        <p class="hint" style="margin-top:8px">1080×1350(4:5). 핵심 글자는 가운데 1080×1080 안에 두어 1:1로 잘려도 읽힙니다. 스토리(9:16) 지면은 표지 한 장을 단일 이미지로 쓰는 편이 낫습니다.</p>
+      </article>
+      <article class="gcard">
+        <h3>4. 사진과 심사 주의점</h3>
+        <ul>
+          <li>사진 출처 추천: <span class="k">한국관광공사 포토코리아</span>(photo.visitkorea.or.kr), 공공누리 제1유형이라 출처만 쓰면 광고에도 쓸 수 있습니다. 각 사진의 이용조건은 다운로드할 때 한 번 더 확인하세요.</li>
+          <li>국립청도숲체원 사진은 기관(054-370-8500)에 사용 허락을 받거나 직접 찍은 사진을 쓰세요.</li>
+          <li>소싸움은 소가 맞붙는 장면을 크게 쓰면 Meta 심사에서 폭력·동물 관련으로 걸리거나 거부감을 줄 수 있습니다. 경기장 전경이나 관중석 사진을 권합니다.</li>
+          <li>번역은 광고비를 쓰기 전에 해당 언어 원어민(센터 통번역사 등)에게 한 번 검수받으세요.</li>
+        </ul>
+      </article>
+    </div>
+
+    <article class="gcard">
+      <h3>광고 문구 (기본 텍스트 · 제목), 언어별</h3>
+      <div class="copy-list" id="copyList"></div>
+    </article>
+  </section>
+</div>
+
+<div id="stage" aria-hidden="true"></div>
+<div class="modal" id="modal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="sheet-head">
+      <div>
+        <h3 id="modalTitle">PNG 이미지</h3>
+        <p>이미지를 우클릭해 "다른 이름으로 저장", 휴대폰은 길게 눌러 저장하세요. 파일 이름 순서대로 캐러셀에 올리면 됩니다.</p>
+      </div>
+      <button class="btn ghost" id="modalClose" type="button">닫기</button>
+    </div>
+    <div class="shots" id="shots"></div>
+  </div>
+</div>
+<input type="file" id="fileInput" accept="image/*" hidden>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+const LANGS = [
+  { id: "ko", label: "한국어" },
+  { id: "en", label: "English" },
+  { id: "zh", label: "中文" },
+  { id: "vi", label: "Việt" },
+  { id: "th", label: "ไทย" }
+];
+
+const T = {
+  ko: {
+    brand: "다문화캠프 · 1박 2일",
+    c1: { eyebrow: "청도 1박 2일 가족캠프", h: "다른 문화,<br>같은 마음!", lead: "가족과 함께 떠나는 청도 다문화캠프", places: "소싸움 · 와인터널 · 숲체원 · 새마을기념관", s1: "사전접수 시", s2: "자녀 무료", s3: "성인 3만원", swipe: "넘겨서 일정 보기 →" },
+    c2: { tag: "1일차 오후", h: "전통 소싸움 관람하고<br>빛나는 와인터널 걷기",
+      a: { time: "13:20", name: "청도 소싸움 관람", desc: "소와 소가 힘을 겨루는 청도의 전통 민속경기를 경기장에서 직접 봐요." },
+      b: { time: "14:45", name: "청도 와인터널", desc: "100년 넘은 옛 철도 터널이 감와인 저장고로! 은은한 조명 속 1km 터널 산책." } },
+    c3: { tag: "1일차 저녁 – 2일차 오전", h: "국립청도숲체원에서<br>숲속의 하룻밤",
+      rows: [["17:20", "숲체원 식당에서 저녁식사"], ["18:00", "레크리에이션 & 퀴즈 (상품 증정)"], ["19:00", "마음을 움직이는 마인드 강연"], ["09:00", "아침 숲체험 프로그램 (3시간)"]], day2: "2일차" },
+    c4: { tag: "2일차 오후", h: "새마을운동 발상지에서<br>기념사진 한 장", desc: "새마을운동발상지기념관 관람 & 단체 사진 촬영", sched: "한눈에 보는 일정", d1: "1일차", d2: "2일차",
+      l1: [["10:00", "다문화도서관 집결·레크"], ["11:20", "점심식사 후 출발"], ["13:20", "청도 소싸움 관람"], ["14:45", "와인터널 구경"], ["17:20", "숲체원 저녁·레크·강연"]],
+      l2: [["07:30", "기상 · 아침식사"], ["09:00", "숲체험 프로그램"], ["12:30", "점심식사"], ["14:00", "새마을운동발상지기념관"], ["16:00", "부산 도착 (예정)"]] },
+    c5: { tag: "사전접수 이벤트", h: "지금 신청하면<br>자녀는 무료!", kid: "자녀", free: "무료", adult: "성인", old: "50,000원", neu: "30,000원", off: "40% 할인", incl: "일정 포함: 차량 이동 · 식사 4회 · 숲체원 숙박", go: "지금 신청하기", deadline: "마감" },
+    kosub: null
+  },
+  en: {
+    brand: "Multicultural Camp · 2 Days",
+    c1: { eyebrow: "2-day family camp in Cheongdo", h: "Different cultures,<br>one heart!", lead: "A 2-day, 1-night family trip to Cheongdo, Korea", places: "Bullfighting · Wine Tunnel · Forest Stay · Saemaul Hall", s1: "Early bird", s2: "Kids FREE", s3: "Adults<br>₩30,000", swipe: "Swipe for the schedule →" },
+    c2: { tag: "Day 1 · Afternoon", h: "Watch Korean bullfighting,<br>walk the glowing Wine Tunnel",
+      a: { time: "13:20", name: "Cheongdo Bullfighting", desc: "See Cheongdo's traditional bull-versus-bull contest live at the arena." },
+      b: { time: "14:45", name: "Cheongdo Wine Tunnel", desc: "A 100-year-old railway tunnel, now a persimmon wine cellar. Walk 1 km under warm lights." } },
+    c3: { tag: "Day 1 evening – Day 2 morning", h: "A night in the forest at<br>National Cheongdo Forest Center",
+      rows: [["17:20", "Dinner at the forest center"], ["18:00", "Games & quiz with prizes"], ["19:00", "An inspiring mind talk"], ["09:00", "Morning forest program (3 hours)"]], day2: "Day 2" },
+    c4: { tag: "Day 2 · Afternoon", h: "Group photo at the birthplace<br>of the Saemaul Movement", desc: "Visit the hall where Korea's New Village Movement began.", sched: "SCHEDULE AT A GLANCE", d1: "Day 1", d2: "Day 2",
+      l1: [["10:00", "Meet at the library, games"], ["11:20", "Lunch, then bus"], ["13:20", "Bullfighting"], ["14:45", "Wine Tunnel"], ["17:20", "Dinner, games, talk"]],
+      l2: [["07:30", "Wake up, breakfast"], ["09:00", "Forest program"], ["12:30", "Lunch"], ["14:00", "Saemaul Memorial Hall"], ["16:00", "Back in Busan (approx.)"]] },
+    c5: { tag: "Early registration", h: "Sign up early,<br>kids go free!", kid: "Kids", free: "FREE", adult: "Adults", old: "₩50,000", neu: "₩30,000", off: "40% OFF", incl: "Includes bus, 4 meals and a night at the forest center", go: "Sign up now", deadline: "Deadline" },
+    kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
+  },
+  zh: {
+    brand: "多元文化营 · 两天一夜",
+    c1: { eyebrow: "清道两天一夜家庭营", h: "文化不同，<br>心意相同！", lead: "和家人一起去韩国清道，度过两天一夜", places: "斗牛 · 红酒隧道 · 森林住宿 · 新村运动纪念馆", s1: "提前报名", s2: "儿童免费", s3: "成人3万韩元", swipe: "向左滑动查看行程 →" },
+    c2: { tag: "第一天 · 下午", h: "观看传统斗牛，<br>漫步灯光红酒隧道",
+      a: { time: "13:20", name: "清道斗牛观赏", desc: "在斗牛场现场观看清道传统的牛与牛角力比赛。" },
+      b: { time: "14:45", name: "清道红酒隧道", desc: "百年铁路隧道变身柿子酒酒窖，在温暖灯光中漫步1公里。" } },
+    c3: { tag: "第一天晚上 – 第二天上午", h: "在国立清道森林体验院<br>森林里住一晚",
+      rows: [["17:20", "在森林体验院餐厅用晚餐"], ["18:00", "游戏与问答（有奖品）"], ["19:00", "打动人心的心灵讲座"], ["09:00", "上午森林体验活动（3小时）"]], day2: "第二天" },
+    c4: { tag: "第二天 · 下午", h: "在新村运动发祥地<br>留下全家合影", desc: "参观新村运动发祥地纪念馆，拍摄集体照。", sched: "行程一览", d1: "第一天", d2: "第二天",
+      l1: [["10:00", "多元文化图书馆集合"], ["11:20", "午餐后出发"], ["13:20", "观看清道斗牛"], ["14:45", "参观红酒隧道"], ["17:20", "晚餐·游戏·讲座"]],
+      l2: [["07:30", "起床·早餐"], ["09:00", "森林体验活动"], ["12:30", "午餐"], ["14:00", "新村运动纪念馆"], ["16:00", "预计抵达釜山"]] },
+    c5: { tag: "提前报名优惠", h: "现在报名，<br>儿童免费！", kid: "儿童", free: "免费", adult: "成人", old: "50,000韩元", neu: "30,000韩元", off: "立减40%", incl: "行程包含：往返交通 · 4餐 · 森林体验院住宿", go: "立即报名", deadline: "截止" },
+    kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
+  },
+  vi: {
+    brand: "Trại Đa văn hóa · 2 ngày 1 đêm",
+    c1: { eyebrow: "Trại gia đình tại Cheongdo", h: "Khác văn hóa,<br>chung một lòng!", lead: "2 ngày 1 đêm khám phá Cheongdo cùng gia đình", places: "Đấu bò · Hầm rượu vang · Nghỉ trong rừng · Bảo tàng Saemaul", s1: "Đăng ký sớm", s2: "Trẻ em<br>miễn phí", s3: "Người lớn<br>30.000 won", swipe: "Vuốt để xem lịch trình →" },
+    c2: { tag: "Ngày 1 · Buổi chiều", h: "Xem đấu bò truyền thống,<br>dạo hầm rượu vang lung linh",
+      a: { time: "13:20", name: "Xem đấu bò Cheongdo", desc: "Tận mắt xem trận đấu bò truyền thống của Cheongdo ngay tại sân đấu." },
+      b: { time: "14:45", name: "Hầm rượu vang Cheongdo", desc: "Đường hầm xe lửa hơn 100 năm tuổi nay là hầm ủ rượu hồng. Dạo 1 km dưới ánh đèn ấm áp." } },
+    c3: { tag: "Tối ngày 1 – Sáng ngày 2", h: "Một đêm giữa rừng tại<br>Trung tâm rừng quốc gia Cheongdo",
+      rows: [["17:20", "Ăn tối tại nhà ăn của trung tâm"], ["18:00", "Trò chơi & đố vui có quà"], ["19:00", "Buổi nói chuyện truyền cảm hứng"], ["09:00", "Trải nghiệm rừng buổi sáng (3 giờ)"]], day2: "Ngày 2" },
+    c4: { tag: "Ngày 2 · Buổi chiều", h: "Chụp ảnh lưu niệm tại nơi<br>khởi nguồn phong trào Saemaul", desc: "Tham quan nhà tưởng niệm phong trào Làng mới (Saemaul) của Hàn Quốc.", sched: "LỊCH TRÌNH TÓM TẮT", d1: "Ngày 1", d2: "Ngày 2",
+      l1: [["10:00", "Tập trung tại thư viện"], ["11:20", "Ăn trưa, lên xe"], ["13:20", "Xem đấu bò"], ["14:45", "Hầm rượu vang"], ["17:20", "Ăn tối, trò chơi, nói chuyện"]],
+      l2: [["07:30", "Thức dậy, ăn sáng"], ["09:00", "Trải nghiệm rừng"], ["12:30", "Ăn trưa"], ["14:00", "Nhà tưởng niệm Saemaul"], ["16:00", "Về đến Busan (dự kiến)"]] },
+    c5: { tag: "Ưu đãi đăng ký sớm", h: "Đăng ký sớm,<br>trẻ em miễn phí!", kid: "Trẻ em", free: "Miễn phí", adult: "Người lớn", old: "50.000 won", neu: "30.000 won", off: "Giảm 40%", incl: "Gồm xe đưa đón, 4 bữa ăn và 1 đêm nghỉ tại trung tâm rừng", go: "Đăng ký ngay", deadline: "Hạn chót" },
+    kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
+  },
+  th: {
+    brand: "ค่ายพหุวัฒนธรรม · 2 วัน 1 คืน",
+    c1: { eyebrow: "ค่ายครอบครัวที่ชองโด", h: "ต่างวัฒนธรรม<br>ใจเดียวกัน!", lead: "เที่ยวชองโด เกาหลี 2 วัน 1 คืนกับครอบครัว", places: "ชนวัว · อุโมงค์ไวน์ · พักในป่า · หอรำลึกแซมาอึล", s1: "ลงทะเบียนล่วงหน้า", s2: "เด็กฟรี", s3: "ผู้ใหญ่<br>30,000 วอน", swipe: "ปัดเพื่อดูกำหนดการ →" },
+    c2: { tag: "วันที่ 1 · ช่วงบ่าย", h: "ชมการชนวัวแบบดั้งเดิม<br>เดินเล่นในอุโมงค์ไวน์",
+      a: { time: "13:20", name: "ชมการชนวัวชองโด", desc: "ชมกีฬาพื้นบ้านวัวชนวัวของชองโดที่สนามจริง" },
+      b: { time: "14:45", name: "อุโมงค์ไวน์ชองโด", desc: "อุโมงค์รถไฟอายุกว่า 100 ปี ที่กลายเป็นห้องเก็บไวน์ลูกพลับ เดินเล่น 1 กม. ใต้แสงไฟอบอุ่น" } },
+    c3: { tag: "เย็นวันที่ 1 – เช้าวันที่ 2", h: "ค้างคืนกลางป่าที่<br>ศูนย์ป่าไม้แห่งชาติชองโด",
+      rows: [["17:20", "อาหารเย็นที่โรงอาหารของศูนย์"], ["18:00", "เกมและตอบคำถามชิงรางวัล"], ["19:00", "ทอล์กสร้างแรงบันดาลใจ"], ["09:00", "กิจกรรมสัมผัสป่ายามเช้า (3 ชั่วโมง)"]], day2: "วันที่ 2" },
+    c4: { tag: "วันที่ 2 · ช่วงบ่าย", h: "ถ่ายรูปหมู่ที่แหล่งกำเนิด<br>ขบวนการแซมาอึล", desc: "เยี่ยมชมหอรำลึกจุดเริ่มต้นขบวนการหมู่บ้านใหม่ (แซมาอึล) ของเกาหลี", sched: "กำหนดการโดยย่อ", d1: "วันที่ 1", d2: "วันที่ 2",
+      l1: [["10:00", "รวมตัวที่ห้องสมุด"], ["11:20", "อาหารกลางวัน ขึ้นรถ"], ["13:20", "ชมการชนวัว"], ["14:45", "อุโมงค์ไวน์"], ["17:20", "อาหารเย็น เกม ทอล์ก"]],
+      l2: [["07:30", "ตื่นนอน อาหารเช้า"], ["09:00", "กิจกรรมในป่า"], ["12:30", "อาหารกลางวัน"], ["14:00", "หอรำลึกแซมาอึล"], ["16:00", "ถึงปูซาน (โดยประมาณ)"]] },
+    c5: { tag: "โปรลงทะเบียนล่วงหน้า", h: "สมัครตอนนี้<br>เด็กไปฟรี!", kid: "เด็ก", free: "ฟรี", adult: "ผู้ใหญ่", old: "50,000 วอน", neu: "30,000 วอน", off: "ลด 40%", incl: "รวมรถรับส่ง อาหาร 4 มื้อ และที่พัก 1 คืนในศูนย์ป่าไม้", go: "สมัครเลย", deadline: "ปิดรับสมัคร" },
+    kosub: "다른 문화, 같은 마음! 청도 1박 2일 다문화캠프"
+  }
+};
+
+const COPY = {
+  ko: { head: "사전접수 시 자녀 무료 · 성인 3만원", body: "다른 문화, 같은 마음! 🌿\n가족과 함께 떠나는 청도 1박 2일 다문화캠프\n\n✔ 청도 소싸움 관람\n✔ 100년 된 터널 속 와인터널 산책\n✔ 국립청도숲체원 숙박 · 숲체험 · 레크리에이션(상품)\n✔ 새마을운동발상지기념관 관람\n\n🎁 사전접수 이벤트\n자녀 무료 · 성인 50,000원 → 30,000원\n\n지금 신청하세요!" },
+  en: { head: "Kids FREE · Adults ₩30,000 (early bird)", body: "Different cultures, one heart! 🌿\nJoin our 2-day, 1-night multicultural family camp in Cheongdo.\n\n✔ Traditional Korean bullfighting\n✔ A walk through the 100-year-old Wine Tunnel\n✔ A night, games & forest program at the National Cheongdo Forest Center\n✔ Saemaul Movement Memorial Hall\n\n🎁 Early registration\nKids FREE · Adults ₩30,000 (regular ₩50,000)\n\nSign up now!" },
+  zh: { head: "提前报名：儿童免费 · 成人3万韩元", body: "文化不同，心意相同！🌿\n和家人一起参加清道两天一夜多元文化营。\n\n✔ 观看清道传统斗牛\n✔ 漫步百年红酒隧道\n✔ 入住国立清道森林体验院 · 森林体验 · 有奖游戏\n✔ 参观新村运动发祥地纪念馆\n\n🎁 提前报名优惠\n儿童免费 · 成人仅需30,000韩元（原价50,000韩元）\n\n立即报名！" },
+  vi: { head: "Đăng ký sớm: Trẻ em miễn phí · Người lớn 30.000 won", body: "Khác văn hóa, chung một lòng! 🌿\nCùng gia đình tham gia Trại Đa văn hóa 2 ngày 1 đêm tại Cheongdo.\n\n✔ Xem đấu bò truyền thống\n✔ Dạo bước hầm rượu vang hơn 100 năm tuổi\n✔ Nghỉ đêm, trò chơi có quà & trải nghiệm rừng tại Trung tâm rừng quốc gia Cheongdo\n✔ Tham quan Nhà tưởng niệm phong trào Saemaul\n\n🎁 Ưu đãi đăng ký sớm\nTrẻ em MIỄN PHÍ · Người lớn chỉ 30.000 won (giá gốc 50.000 won)\n\nĐăng ký ngay!" },
+  th: { head: "ลงทะเบียนล่วงหน้า: เด็กฟรี · ผู้ใหญ่ 30,000 วอน", body: "ต่างวัฒนธรรม ใจเดียวกัน! 🌿\nชวนครอบครัวมาร่วมค่ายพหุวัฒนธรรม 2 วัน 1 คืน ที่ชองโด\n\n✔ ชมการชนวัวแบบดั้งเดิม\n✔ เดินเล่นในอุโมงค์ไวน์อายุกว่า 100 ปี\n✔ ค้างคืน เล่นเกมชิงรางวัล และทำกิจกรรมในป่าที่ศูนย์ป่าไม้แห่งชาติชองโด\n✔ เยี่ยมชมหอรำลึกขบวนการแซมาอึล\n\n🎁 โปรลงทะเบียนล่วงหน้า\nเด็กฟรี · ผู้ใหญ่เพียง 30,000 วอน (ปกติ 50,000 วอน)\n\nสมัครเลย!" }
+};
+
+const SLOTS = [
+  { id: "cover", name: "표지 (대표 사진)", tip: "와인터널 조명 또는 숲 풍경 추천" },
+  { id: "bull", name: "청도 소싸움 경기장", tip: "경기장 전경 권장" },
+  { id: "tunnel", name: "청도 와인터널", tip: "" },
+  { id: "forest", name: "국립청도숲체원", tip: "" },
+  { id: "saemaul", name: "새마을운동발상지기념관", tip: "" }
+];
+
+const DEFAULTS = { date: "2026. 10. ○ – 10. ○", deadline: "10. ○ (○)", contact: "신청 링크 또는 전화번호" };
+
+/* ---------- state ---------- */
+const store = {
+  get(k, d) { try { const v = localStorage.getItem("mcamp:" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem("mcamp:" + k, JSON.stringify(v)); return true; } catch (e) { return false; } }
+};
+const state = {
+  lang: store.get("lang", "ko"),
+  info: Object.assign({}, DEFAULTS, store.get("info", {})),
+  photos: store.get("photos", {}),
+  credits: store.get("credits", {})
+};
+if (!T[state.lang]) state.lang = "ko";
+
+/* ---------- fallback illustrations (used until a real photo is added) ---------- */
+function art(id) {
+  const c = document.createElement("canvas"); c.width = 1200; c.height = 1000;
+  const g = c.getContext("2d"), W = c.width, H = c.height;
+  const lin = (y0, y1, stops) => { const L = g.createLinearGradient(0, y0, 0, y1); stops.forEach(([o, col]) => L.addColorStop(o, col)); return L; };
+  const hills = (base, amp, col, seed) => { g.fillStyle = col; g.beginPath(); g.moveTo(0, H); for (let x = 0; x <= W; x += 20) g.lineTo(x, base - amp * (Math.sin(x / 170 + seed) * .6 + Math.sin(x / 63 + seed * 2) * .25)); g.lineTo(W, H); g.fill(); };
+  const tree = (x, y, h, col) => { g.fillStyle = col; for (let i = 0; i < 3; i++) { const w = h * (.55 - i * .12), yy = y - i * h * .28; g.beginPath(); g.moveTo(x, yy - h * .5); g.lineTo(x - w / 2, yy); g.lineTo(x + w / 2, yy); g.fill(); } g.fillRect(x - h * .03, y, h * .06, h * .12); };
+  if (id === "tunnel") {
+    // brick tunnel receding to a warm glow: draw arches from the entrance (large) to the far end (small)
+    g.fillStyle = "#140a06"; g.fillRect(0, 0, W, H);
+    const cx = W / 2, vy = H * .5;
+    for (let i = 0; i <= 18; i++) {
+      const k = i / 18, s = Math.pow(1 - k, 1.6), w = 90 + 1250 * s, h = 110 + 1150 * s, by = vy + h * .42;
+      const shade = 40 + 150 * k;
+      g.fillStyle = `rgb(${shade},${shade * .5},${shade * .3})`;
+      g.beginPath(); g.moveTo(cx - w / 2, by); g.lineTo(cx - w / 2, by - h * .5); g.ellipse(cx, by - h * .5, w / 2, h * .5, 0, Math.PI, 0); g.lineTo(cx + w / 2, by); g.closePath(); g.fill();
+      g.strokeStyle = `rgba(255,200,130,${.25 + .35 * k})`; g.lineWidth = 2 + 3 * s; g.stroke();
+      if (i % 2 === 0) for (let j = 0; j < 7; j++) { const a = Math.PI + (j + .5) * Math.PI / 7; g.fillStyle = `rgba(255,222,160,${.95 - .4 * k})`; g.beginPath(); g.arc(cx + Math.cos(a) * w / 2 * .9, by - h * .5 + Math.sin(a) * h * .5 * .9, 3 + 7 * s, 0, 7); g.fill(); }
+    }
+    const R = g.createRadialGradient(cx, vy, 10, cx, vy, 420); R.addColorStop(0, "rgba(255,214,150,.9)"); R.addColorStop(.25, "rgba(255,170,90,.35)"); R.addColorStop(1, "rgba(255,170,90,0)"); g.fillStyle = R; g.fillRect(0, 0, W, H);
+    g.fillStyle = "rgba(20,10,6,.55)"; g.beginPath(); g.moveTo(0, H); g.lineTo(cx - 60, vy + 70); g.lineTo(cx + 60, vy + 70); g.lineTo(W, H); g.fill();
+    for (let i = 0; i < 6; i++) { const y = vy + 90 + i * i * 14, x = cx - 70 - i * i * 20; g.fillStyle = "#5b2a1a"; g.fillRect(x, y, 26 + i * 8, 44 + i * 16); g.fillRect(W - x - 26 - i * 8, y, 26 + i * 8, 44 + i * 16); }
+  } else if (id === "bull") {
+    g.fillStyle = lin(0, H * .45, [[0, "#9fd0f0"], [1, "#e6f3fb"]]); g.fillRect(0, 0, W, H);
+    hills(H * .36, 60, "#6c9a6b", 1);
+    g.fillStyle = "#b8b2a6"; g.fillRect(0, H * .38, W, H * .2);
+    for (let r = 0; r < 5; r++) for (let x = 0; x < W; x += 26) { g.fillStyle = ["#e8601c", "#2e7cc4", "#f3d34a", "#ffffff", "#1f4d3a"][(x / 26 + r * 3) % 5 | 0]; g.beginPath(); g.arc(x + (r % 2) * 13, H * .41 + r * 32, 8, 0, 7); g.fill(); }
+    g.fillStyle = "#e7cf9d"; g.beginPath(); g.ellipse(W / 2, H * .82, W * .62, H * .3, 0, 0, 7); g.fill();
+    g.strokeStyle = "#fff"; g.lineWidth = 8; g.beginPath(); g.ellipse(W / 2, H * .82, W * .5, H * .22, 0, 0, 7); g.stroke();
+    g.fillStyle = "#6b3e22"; [[W * .42, 1], [W * .58, -1]].forEach(([x, d]) => { g.beginPath(); g.ellipse(x, H * .8, 110, 58, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(x + d * 100, H * .77, 44, 36, 0, 0, 7); g.fill(); g.fillRect(x - 80, H * .82, 20, 70); g.fillRect(x + 50, H * .82, 20, 70); });
+  } else if (id === "forest") {
+    g.fillStyle = lin(0, H * .6, [[0, "#cfe8f2"], [1, "#f4f7e8"]]); g.fillRect(0, 0, W, H);
+    hills(H * .42, 110, "#9dbfa4", 0.3); hills(H * .55, 90, "#6f9e76", 2.1);
+    for (let i = 0; i < 22; i++) tree((i * 97 + 30) % W, H * .7 + (i % 3) * 20, 260 + (i * 37) % 120, i % 2 ? "#2f6b4f" : "#3f7f5a");
+    hills(H * .86, 30, "#1f4d3a", 4);
+    for (let i = 0; i < 12; i++) tree((i * 131 + 60) % W, H * .97, 360 + (i * 53) % 140, "#1a4030");
+  } else if (id === "saemaul") {
+    g.fillStyle = lin(0, H * .7, [[0, "#6fb3e6"], [1, "#dff0fb"]]); g.fillRect(0, 0, W, H);
+    hills(H * .6, 70, "#7faa6e", 1.4);
+    g.fillStyle = "#8fbf5a"; g.fillRect(0, H * .76, W, H);
+    const bx = W * .22, bw = W * .56, by = H * .36, bh = H * .42;
+    g.fillStyle = "#f4f1ea"; g.fillRect(bx, by, bw, bh);
+    g.fillStyle = "#e0dacd"; g.beginPath(); g.moveTo(bx - 30, by); g.lineTo(W / 2, by - 150); g.lineTo(bx + bw + 30, by); g.fill();
+    g.fillStyle = "#cfc7b6"; g.fillRect(bx - 30, by, bw + 60, 26);
+    for (let i = 0; i < 6; i++) { g.fillStyle = "#ffffff"; g.fillRect(bx + 40 + i * (bw - 110) / 5, by + 40, 34, bh - 60); g.fillStyle = "#d9d2c3"; g.fillRect(bx + 66 + i * (bw - 110) / 5, by + 40, 8, bh - 60); }
+    g.fillStyle = "#bdb5a3"; g.fillRect(bx - 50, by + bh - 20, bw + 100, 30);
+    for (let i = 0; i < 8; i++) tree(i < 4 ? 60 + i * 60 : W - 60 - (i - 4) * 60, H * .8, 200, "#2f6b4f");
+  } else {
+    g.fillStyle = lin(0, H * .7, [[0, "#f6a25e"], [.55, "#f9d59a"], [1, "#fdebc8"]]); g.fillRect(0, 0, W, H);
+    g.fillStyle = "rgba(255,240,200,.9)"; g.beginPath(); g.arc(W * .7, H * .42, 90, 0, 7); g.fill();
+    hills(H * .5, 120, "#b56a58", 0.5); hills(H * .62, 100, "#7b5a64", 2.4); hills(H * .75, 70, "#3d5a4a", 4.2);
+    for (let i = 0; i < 16; i++) tree((i * 83 + 20) % W, H * .95, 300 + (i * 29) % 110, "#1f3a2c");
+  }
+  return c.toDataURL("image/jpeg", 0.86);
+}
+const ART = {};
+SLOTS.forEach(s => ART[s.id] = art(s.id));
+const img = id => state.photos[id] || (id === "cover" ? (state.photos.tunnel || state.photos.forest || ART.cover) : ART[id]);
+const credit = id => { const src = id === "cover" && !state.photos.cover ? (state.photos.tunnel ? "tunnel" : state.photos.forest ? "forest" : null) : id; return src && state.photos[src] && state.credits[src] ? state.credits[src] : ""; };
+
+/* ---------- card templates ---------- */
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+const bg = id => `style="background-image:url('${img(id)}')"`;
+const cr = id => credit(id) ? `<div class="credit">${esc(credit(id))}</div>` : "";
+function topbar(t, n) { return `<div class="topbar"><div class="brand"><span class="dot"></span><span>${t.brand}</span></div><span class="pg">${n} / 5</span></div>`; }
+
+function cardsHTML(lang) {
+  const t = T[lang], I = state.info, ks = t.kosub;
+  const c1 = `<div class="card c1" data-lang="${lang}">
+    <div class="ph" ${bg("cover")}></div><div class="shade"></div>${topbar(t, 1)}
+    <div class="sticker"><div class="s1">${t.c1.s1}</div><div class="s2 disp">${t.c1.s2}</div><div class="s3">${t.c1.s3}</div></div>
+    <div class="body">
+      <div class="eyebrow">${t.c1.eyebrow}</div>
+      <h2 class="disp">${t.c1.h}</h2>
+      <div class="lead">${t.c1.lead}</div>
+      ${ks ? `<div class="kosub">${ks}</div>` : ""}
+      <div class="places">${t.c1.places}</div>
+    </div>
+    <div class="foot"><span class="date">${esc(I.date)}</span><span>${t.c1.swipe}</span></div>
+    ${credit("cover") ? `<div class="credit" style="right:72px;top:120px">${esc(credit("cover"))}</div>` : ""}
+  </div>`;
+  const row = (id, r) => `<div class="row"><div class="pic"><div class="ph" ${bg(id)}></div>${cr(id)}</div>
+    <div class="txt"><span class="time num">${r.time}</span><div class="name">${r.name}</div><div class="desc">${r.desc}</div></div></div>`;
+  const c2 = `<div class="card c2" data-lang="${lang}">${topbar(t, 2)}
+    <div class="head"><span class="tag" style="align-self:flex-start">${t.c2.tag}</span><h2 class="disp">${t.c2.h}</h2>${ks ? `<div class="kosub">청도 소싸움 관람 · 청도 와인터널</div>` : ""}</div>
+    <div class="rows">${row("bull", t.c2.a)}${row("tunnel", t.c2.b)}</div>
+  </div>`;
+  const c3 = `<div class="card c3" data-lang="${lang}">
+    <div class="ph" ${bg("forest")}></div><div class="topshade"></div>${topbar(t, 3)}${cr("forest")}
+    <div class="panel3"><span class="tag" style="align-self:flex-start">${t.c3.tag}</span><h2 class="disp">${t.c3.h}</h2>${ks ? `<div class="kosub">국립청도숲체원 · 레크리에이션 · 마인드강연 · 숲체험</div>` : ""}
+      <div class="list">${t.c3.rows.map((r, i) => `<div class="li"><span class="t num">${r[0]}</span><span class="x">${i === 3 ? `<span class="d">${t.c3.day2}</span>` : ""}${r[1]}</span></div>`).join("")}</div>
+    </div>
+  </div>`;
+  const lines = arr => arr.map(r => `<div class="ln"><span class="t num">${r[0]}</span><span class="v">${r[1]}</span></div>`).join("");
+  const c4 = `<div class="card c4" data-lang="${lang}">
+    <div class="ph" ${bg("saemaul")}></div><div class="topshade"></div>${topbar(t, 4)}${cr("saemaul")}
+    <div class="panel4"><span class="tag">${t.c4.tag}</span><h2 class="disp">${t.c4.h}</h2><div class="desc">${t.c4.desc}</div>
+      <div class="schedtitle">${t.c4.sched}</div>
+      <div class="sched"><div><h4>${t.c4.d1}</h4>${lines(t.c4.l1)}</div><div><h4>${t.c4.d2}</h4>${lines(t.c4.l2)}</div></div>
+    </div>
+  </div>`;
+  const c5 = `<div class="card c5" data-lang="${lang}">${topbar(t, 5)}
+    <div class="thumbs">${["bull", "tunnel", "forest", "saemaul"].map(id => `<div class="ph" ${bg(id)}></div>`).join("")}</div>
+    <div class="head"><span class="tag">${t.c5.tag}</span><h2 class="disp">${t.c5.h}</h2>${ks ? `<div class="kosub">사전접수 시 자녀 무료 · 성인 30,000원</div>` : ""}</div>
+    <div class="prices">
+      <div class="price"><div class="lbl">${t.c5.kid}</div><div class="big disp">${t.c5.free}</div></div>
+      <div class="price"><div class="off">${t.c5.off}</div><div class="lbl">${t.c5.adult}</div><div class="old num">${t.c5.old}</div><div class="new num">${t.c5.neu}</div></div>
+    </div>
+    <div class="incl">${t.c5.incl}</div>
+    <div class="cta"><div class="l"><div class="go disp">${t.c5.go}</div><div class="how">${esc(I.contact)}</div></div><div class="arrow">→</div></div>
+    <div class="foot"><span>${esc(I.date)}</span><span>${t.c5.deadline} ${esc(I.deadline)}</span></div>
+  </div>`;
+  return [c1, c2, c3, c4, c5];
+}
+
+/* ---------- UI ---------- */
+const $ = s => document.querySelector(s);
+const cardsEl = $("#cards");
+const CARD_NAMES = ["표지", "1일차 오후", "숲체원", "2일차 · 일정", "사전접수 이벤트"];
+
+function renderLangs() {
+  $("#langs").innerHTML = LANGS.map(l => `<button type="button" data-lang="${l.id}" aria-pressed="${l.id === state.lang}">${l.label}</button>`).join("");
+}
+function renderCards() {
+  const html = cardsHTML(state.lang);
+  cardsEl.innerHTML = html.map((h, i) => `<div class="cell"><div class="cell-head"><span><b>${i + 1}</b> · ${CARD_NAMES[i]}</span><button type="button" data-one="${i}">PNG</button></div><div class="frame">${h}</div></div>`).join("");
+  fit();
+}
+function fit() { document.querySelectorAll(".frame").forEach(f => f.style.setProperty("--s", f.clientWidth / 1080)); }
+new ResizeObserver(fit).observe(cardsEl);
+
+function renderSlots() {
+  $("#slots").innerHTML = SLOTS.map(s => {
+    const has = !!state.photos[s.id];
+    return `<div class="slot"><div class="thumb" style="background-image:url('${img(s.id)}')"></div>
+      <div class="meta"><div class="row"><span class="name">${s.name}</span><button class="pick" type="button" data-pick="${s.id}">${has ? "바꾸기" : "사진 넣기"}</button></div>
+      <span class="state ${has ? "ok" : ""}">${has ? "사진 적용됨" : "일러스트 사용 중" + (s.tip ? " · " + s.tip : "")}</span>
+      <input type="text" id="cr-${s.id}" data-credit="${s.id}" placeholder="출처 예) 한국관광공사 포토코리아-OOO" value="${esc(state.credits[s.id] || "")}" aria-label="${s.name} 사진 출처"></div></div>`;
+  }).join("");
+}
+function renderInfo() {
+  [["fDate", "date"], ["fDeadline", "deadline"], ["fContact", "contact"]].forEach(([el, k]) => {
+    const input = $("#" + el); if (document.activeElement !== input) input.value = state.info[k];
+    input.classList.toggle("todo", state.info[k] === DEFAULTS[k]);
+  });
+}
+function renderCopy() {
+  $("#copyList").innerHTML = LANGS.map(l => `<div class="copy-item"><header><b>${l.label}</b><button class="copy" type="button" data-copy="${l.id}">복사</button></header>
+    <pre><b>제목:</b> ${esc(COPY[l.id].head)}\n\n${esc(COPY[l.id].body)}</pre></div>`).join("");
+}
+function toast(msg) { const d = document.createElement("div"); d.className = "toast"; d.textContent = msg; document.body.appendChild(d); setTimeout(() => d.remove(), 2200); }
+
+$("#langs").addEventListener("click", e => { const b = e.target.closest("button[data-lang]"); if (!b) return; state.lang = b.dataset.lang; store.set("lang", state.lang); renderLangs(); renderCards(); });
+[["fDate", "date"], ["fDeadline", "deadline"], ["fContact", "contact"]].forEach(([el, k]) => {
+  $("#" + el).addEventListener("input", e => { state.info[k] = e.target.value; store.set("info", state.info); renderInfo(); renderCards(); });
+});
+$("#safeToggle").addEventListener("change", e => cardsEl.classList.toggle("show-safe", e.target.checked));
+
+let picking = null;
+$("#slots").addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (!b) return; picking = b.dataset.pick; $("#fileInput").value = ""; $("#fileInput").click(); });
+$("#slots").addEventListener("input", e => { const id = e.target.dataset.credit; if (!id) return; state.credits[id] = e.target.value; store.set("credits", state.credits); renderCards(); });
+$("#fileInput").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f || !picking) return;
+  try {
+    state.photos[picking] = await shrink(f);
+    if (!store.set("photos", state.photos)) toast("사진이 커서 브라우저에 저장하지 못했어요. 새로고침하면 다시 넣어야 합니다.");
+    renderSlots(); renderCards();
+  } catch (err) { toast("이 파일은 이미지로 읽을 수 없어요. JPG나 PNG로 다시 시도해주세요."); }
+});
+function shrink(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onerror = rej;
+    r.onload = () => { const im = new Image(); im.onerror = rej; im.onload = () => {
+      const k = Math.min(1, 1600 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL("image/jpeg", 0.85)); }; im.src = r.result; };
+    r.readAsDataURL(file);
+  });
+}
+
+$("#copyList").addEventListener("click", e => {
+  const b = e.target.closest("[data-copy]"); if (!b) return; const c = COPY[b.dataset.copy];
+  const text = c.head + "\n\n" + c.body;
+  const fallback = () => { const pre = b.closest(".copy-item").querySelector("pre"); const sel = getSelection(); const rg = document.createRange(); rg.selectNodeContents(pre); sel.removeAllRanges(); sel.addRange(rg); toast("선택했어요. Ctrl+C로 복사하세요."); };
+  try { navigator.clipboard.writeText(text).then(() => toast("복사했어요"), fallback); } catch (err) { fallback(); }
+});
+
+/* ---------- export ---------- */
+const stage = $("#stage");
+const FONT_FACES = ['400 40px "Black Han Sans"', '400 40px "Noto Sans KR"', '500 40px "Noto Sans KR"', '700 40px "Noto Sans KR"', '400 40px "Be Vietnam Pro"', '600 40px "Be Vietnam Pro"', '700 40px "Be Vietnam Pro"', '800 40px "Be Vietnam Pro"', '500 40px "Noto Sans SC"', '700 40px "Noto Sans SC"', '900 40px "Noto Sans SC"', '400 40px "Noto Sans Thai"', '600 40px "Noto Sans Thai"', '800 40px "Noto Sans Thai"'];
+async function shoot(html) {
+  stage.innerHTML = html;
+  const el = stage.firstElementChild;
+  const sample = el.textContent.slice(0, 400);
+  await Promise.all(FONT_FACES.map(f => document.fonts.load(f, sample).catch(() => null)));
+  await document.fonts.ready;
+  const canvas = await html2canvas(el, { scale: 1, width: 1080, height: 1350, backgroundColor: null, logging: false, x: 0, y: 0, scrollX: 0, scrollY: 0, windowWidth: 1080, windowHeight: 1350 });
+  stage.innerHTML = "";
+  return canvas.toDataURL("image/png");
+}
+function openModal(title) { $("#modalTitle").textContent = title; $("#shots").innerHTML = ""; $("#modal").hidden = false; }
+function addShot(src, cap) { $("#shots").insertAdjacentHTML("beforeend", `<figure><img src="${src}" alt="${esc(cap)}"><figcaption>${esc(cap)}</figcaption></figure>`); }
+async function exportSet(langs, only) {
+  const btns = document.querySelectorAll(".btn, [data-one]"); btns.forEach(b => b.disabled = true);
+  if (typeof html2canvas === "undefined") { toast("이미지 변환 도구를 불러오지 못했어요. 새로고침 후 다시 시도해주세요."); btns.forEach(b => b.disabled = false); return; }
+  openModal(langs.length > 1 ? "5개 언어 × 5장" : `${LANGS.find(l => l.id === langs[0]).label} 카드`);
+  try {
+    for (const lang of langs) {
+      const set = cardsHTML(lang);
+      for (let i = 0; i < 5; i++) {
+        if (only != null && i !== only) continue;
+        addShot(await shoot(set[i]), `camp_${lang}_${i + 1}.png · ${CARD_NAMES[i]}`);
+      }
+    }
+  } catch (err) { toast("이미지를 만들지 못했어요: " + err.message); }
+  btns.forEach(b => b.disabled = false);
+}
+$("#exportLang").addEventListener("click", () => exportSet([state.lang]));
+$("#exportAll").addEventListener("click", () => exportSet(LANGS.map(l => l.id)));
+cardsEl.addEventListener("click", e => { const b = e.target.closest("[data-one]"); if (b) exportSet([state.lang], +b.dataset.one); });
+$("#modalClose").addEventListener("click", () => { $("#modal").hidden = true; });
+$("#modal").addEventListener("click", e => { if (e.target.id === "modal") $("#modal").hidden = true; });
+document.addEventListener("keydown", e => { if (e.key === "Escape") $("#modal").hidden = true; });
+
+renderLangs(); renderInfo(); renderSlots(); renderCards(); renderCopy();
+document.fonts && document.fonts.ready.then(fit);
+</script>
